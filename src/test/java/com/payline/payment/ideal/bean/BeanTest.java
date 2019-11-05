@@ -1,15 +1,16 @@
 package com.payline.payment.ideal.bean;
 
+import com.payline.payment.ideal.Utils;
 import com.payline.payment.ideal.bean.request.IdealDirectoryRequest;
 import com.payline.payment.ideal.bean.request.IdealPaymentRequest;
-import com.payline.payment.ideal.Utils;
 import com.payline.payment.ideal.utils.XMLUtils;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class BeanTest {
-    XMLUtils xmlUtils = XMLUtils.getInstance();
-    
-    String toto = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
+class BeanTest {
+    private XMLUtils xmlUtils = XMLUtils.getInstance();
+
+    private String bean = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
             "<DirectoryReq xmlns=\"http://www.idealdesk.com/ideal/messages/mer-acq/3.3.1\" version=\"3.3.1\">" +
             "   <createDateTimestamp>2008-11-14T09:30:47.0Z</createDateTimestamp>" +
             "   <Merchant>" +
@@ -36,14 +37,17 @@ public class BeanTest {
             "</DirectoryReq>";
 
     @Test
-    void toto() throws Exception {
+    void beanTest() {
         IdealDirectoryRequest idealDirectoryRequest = new IdealDirectoryRequest(Utils.createContractParametersCheckRequest());
         System.out.println(xmlUtils.toXml(idealDirectoryRequest));
 
         IdealPaymentRequest idealPaymentRequest = new IdealPaymentRequest(Utils.createCompletePaymentBuilder().build());
         System.out.println(xmlUtils.toXml(idealPaymentRequest));
 
-        IdealDirectoryRequest idealDirectoryRequest2 = xmlUtils.fromXML(toto, IdealDirectoryRequest.class);
+        IdealDirectoryRequest idealDirectoryRequest2 = xmlUtils.fromXML(bean, IdealDirectoryRequest.class);
+
+        Assertions.assertNotNull(idealDirectoryRequest2.getMerchant());
+        Assertions.assertNotNull(idealDirectoryRequest2.getMerchant());
 
     }
 }

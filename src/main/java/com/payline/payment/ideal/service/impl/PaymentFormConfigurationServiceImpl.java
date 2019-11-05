@@ -47,7 +47,7 @@ public class PaymentFormConfigurationServiceImpl implements PaymentFormConfigura
 
             CustomForm customForm = BankTransferForm.builder()
                     .withBanks(getOptionFromPluginConfiguration(request.getPluginConfiguration()))
-                    .withDisplayButton(IdealConstant.FORM_DISPLAY_PAYMENT_BUTTON)
+                    .withDisplayButton(true)
                     .withButtonText(i18n.getMessage(IdealConstant.FORM_BUTTON_IDEAL_TEXT, request.getLocale()))
                     .withDescription(i18n.getMessage(IdealConstant.FORM_BUTTON_IDEAL_DESCRIPTION, request.getLocale()))
                     .withCustomFields(new ArrayList<>())

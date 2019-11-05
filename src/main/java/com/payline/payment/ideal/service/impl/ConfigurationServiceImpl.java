@@ -5,7 +5,6 @@ import com.payline.payment.ideal.utils.XMLUtils;
 import com.payline.payment.ideal.utils.http.IdealHttpClient;
 import com.payline.payment.ideal.utils.i18n.I18nService;
 import com.payline.payment.ideal.utils.properties.ReleaseProperties;
-import com.payline.payment.ideal.utils.propertiesFilesConstants.ConfigurationConstants;
 import com.payline.pmapi.bean.configuration.ReleaseInformation;
 import com.payline.pmapi.bean.configuration.parameter.AbstractParameter;
 import com.payline.pmapi.bean.configuration.parameter.impl.InputParameter;
@@ -97,7 +96,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
     @Override
     public String getName(Locale locale) {
-        return this.i18n.getMessage(ConfigurationConstants.PAYMENT_METHOD_NAME, locale);
+        return this.i18n.getMessage("paymentMethod.name", locale);
     }
 
 }

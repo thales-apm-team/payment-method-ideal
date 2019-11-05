@@ -40,7 +40,7 @@ public class IdealHttpClient extends AbstractHttpClient {
     private SignatureUtils signatureUtils;
 
 
-    IdealHttpClient() {
+    private IdealHttpClient() {
         xmlUtils = XMLUtils.getInstance();
         signatureUtils = SignatureUtils.getInstance();
     }
@@ -242,7 +242,7 @@ public class IdealHttpClient extends AbstractHttpClient {
             // Extract error code and message from the error response
             String message = "partner error: " + response.getStatusCode() + " " + response.getStatusMessage();
             int errorCode = response.getStatusCode();
-            if (response != null && response.getContent() != null) {
+            if (response.getContent() != null) {
                 message = response.getContent();
                 errorCode = response.getStatusCode();
             }

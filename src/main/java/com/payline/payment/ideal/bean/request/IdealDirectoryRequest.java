@@ -30,4 +30,8 @@ public class IdealDirectoryRequest extends IdealBean {
                 , configuration.getProperty(IdealConstant.MERCHANT_SUBID_KEY).getValue());
 
     }
+
+    public Merchant getMerchant() {
+        return merchant;
+    }
 }

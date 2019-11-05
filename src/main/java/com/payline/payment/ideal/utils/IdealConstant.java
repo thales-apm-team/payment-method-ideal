@@ -24,7 +24,6 @@ public class IdealConstant {
 
 
     // Data used in PaymentFormConfigurationServiceImpl
-    public static final boolean FORM_DISPLAY_PAYMENT_BUTTON = true;
     public static final String ISSUER_ID = "IssuerId";
 
     public static final String FORM_BUTTON_IDEAL_TEXT = "form.button.ideal.text";

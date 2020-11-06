@@ -58,10 +58,9 @@ public abstract class AbstractHttpClient {
      * @param url  URL RL scheme + host
      * @param path URL path
      * @return The response returned from the HTTP call
-     * @throws HttpCallException COMMUNICATION_ERROR
      */
 
-    StringResponse doGet(String url, String path, Header[] headers) throws HttpCallException {
+    StringResponse doGet(String url, String path, Header[] headers){
         try {
             URI uri = new URI(url + path);
 
@@ -81,9 +80,8 @@ public abstract class AbstractHttpClient {
      * @param path URL path
      * @param body Request body
      * @return The response returned from the HTTP call
-     * @throws HttpCallException COMMUNICATION_ERROR
      */
-    StringResponse doPost(String url, String path, Header[] headers, HttpEntity body) throws HttpCallException {
+    StringResponse doPost(String url, String path, Header[] headers, HttpEntity body) {
 
         try {
             URI uri = new URI(url + path);
@@ -100,7 +98,7 @@ public abstract class AbstractHttpClient {
         }
     }
 
-    StringResponse getStringResponse(String url, HttpRequestBase httpPostRequest) throws HttpCallException {
+    StringResponse getStringResponse(String url, HttpRequestBase httpPostRequest) {
         final long start = System.currentTimeMillis();
         int count = 0;
         StringResponse strResponse = null;
@@ -117,7 +115,6 @@ public abstract class AbstractHttpClient {
 
             } catch (final IOException e) {
                 LOGGER.error("Error while partner call [T: {}ms]", System.currentTimeMillis() - start, e);
-                strResponse = null;
                 errMsg = e.getMessage();
             } finally {
                 count++;

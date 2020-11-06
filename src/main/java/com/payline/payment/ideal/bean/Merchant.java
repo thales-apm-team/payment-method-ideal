@@ -4,24 +4,24 @@ package com.payline.payment.ideal.bean;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 import com.payline.payment.ideal.utils.PluginUtils;
+import lombok.NoArgsConstructor;
+import lombok.NonNull;
 
+@NoArgsConstructor
 @JacksonXmlRootElement(localName = "Merchant")
 public class Merchant {
 
     @JacksonXmlProperty(localName = "merchantID")
+    @NonNull
     private String merchantId;
 
     @JacksonXmlProperty(localName = "subID")
+    @NonNull
     private String subId;
 
     @JacksonXmlProperty(localName = "merchantReturnURL")
     private String merchantReturnURL;
 
-    /**
-     * Empty public constructor needed by JacksonXML
-     */
-    public Merchant() {
-    }
 
     public Merchant(String merchantId, String subId) {
         this.merchantId = merchantId;

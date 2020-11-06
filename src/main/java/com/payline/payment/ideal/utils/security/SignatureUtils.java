@@ -2,7 +2,6 @@ package com.payline.payment.ideal.utils.security;
 
 import com.payline.payment.ideal.exception.CryptoException;
 import com.payline.payment.ideal.exception.InvalidDataException;
-import com.payline.payment.ideal.exception.PluginException;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
@@ -20,7 +19,6 @@ import javax.xml.crypto.dsig.spec.TransformParameterSpec;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
@@ -49,7 +47,7 @@ public class SignatureUtils {
     private static final String END_PUBLIC_PATTERN = "-----END PUBLIC KEY-----";
 
     private static final String SIGNATURE_TAG = "Signature";
-    private static final String sSignatureMethod = "http://www.w3.org/2001/04/xmldsig-more#rsa-sha256";
+    private static final String S_SIGNATURE_METHOD = "http://www.w3.org/2001/04/xmldsig-more#rsa-sha256";
 
 
     private SignatureUtils() {
@@ -75,9 +73,8 @@ public class SignatureUtils {
      *
      * @param key
      * @return
-     * @throws PluginException
      */
-    public PrivateKey getPrivateKeyFromString(String key) throws PluginException {
+    public PrivateKey getPrivateKeyFromString(String key) {
         if (key == null) {
             throw new InvalidDataException("private Key shall not be null");
         }
@@ -100,9 +97,8 @@ public class SignatureUtils {
      *
      * @param key
      * @return
-     * @throws PluginException
      */
-    public PublicKey getPublicKeyFromString(String key) throws PluginException {
+    public PublicKey getPublicKeyFromString(String key) {
         if (key == null) {
             throw new InvalidDataException("public Key shall not be null");
         }
@@ -126,9 +122,8 @@ public class SignatureUtils {
      * @param publicKey  the public key to give to verify the signature
      * @param privateKey the privateKey used to sign the document
      * @return the signed XML
-     * @throws PluginException
      */
-    public String signXML(String message, PublicKey publicKey, String publicKeyId, PrivateKey privateKey) throws PluginException {
+    public String signXML(String message, PublicKey publicKey, String publicKeyId, PrivateKey privateKey) {
         if (message == null) {
             throw new InvalidDataException("message to sign shall not be null");
         }
@@ -144,7 +139,7 @@ public class SignatureUtils {
             CanonicalizationMethod cm = fac.newCanonicalizationMethod(CanonicalizationMethod.EXCLUSIVE, (C14NMethodParameterSpec) null);
 
             // Signature Method
-            SignatureMethod sm = fac.newSignatureMethod(sSignatureMethod, null);
+            SignatureMethod sm = fac.newSignatureMethod(S_SIGNATURE_METHOD, null);
 
             // Reference
             //     transforms
@@ -166,12 +161,15 @@ public class SignatureUtils {
 
             // convert String to XML Document
             DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+            documentBuilderFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+            documentBuilderFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
             documentBuilderFactory.setNamespaceAware(true);
             documentBuilderFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, Boolean.TRUE);
             DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
             InputSource inputSource = new InputSource();
             inputSource.setCharacterStream(new StringReader(message));
             Document document = documentBuilder.parse(inputSource);
+            document.setXmlStandalone(true);
 
             // sign Document
             DOMSignContext domSignContext = new DOMSignContext(privateKey, document.getDocumentElement());
@@ -183,6 +181,8 @@ public class SignatureUtils {
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
             TransformerFactory tf = TransformerFactory.newInstance();
+            tf.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+            tf.setAttribute(XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "");
             tf.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
             Transformer trans = tf.newTransformer();
             trans.transform(domSource, new StreamResult(outputStream));
@@ -201,9 +201,8 @@ public class SignatureUtils {
      *
      * @param message   the signed message to verify
      * @param publicKey the key used to verify the signature
-     * @throws PluginException
      */
-    public void verifySignatureXML(String message, PublicKey publicKey) throws PluginException {
+    public void verifySignatureXML(String message, PublicKey publicKey) {
         if (message == null) {
             throw new InvalidDataException("message to sign shall not be null");
         }
@@ -214,6 +213,8 @@ public class SignatureUtils {
             // convert String to XML Document
             DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
             documentBuilderFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, Boolean.TRUE);
+            documentBuilderFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, ""); // Compliant
+            documentBuilderFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_SCHEMA, ""); // compliant
             documentBuilderFactory.setNamespaceAware(true);
             DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
             InputSource inputSource = new InputSource();

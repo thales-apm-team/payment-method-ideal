@@ -1,6 +1,8 @@
 package com.payline.payment.ideal;
 
-import com.payline.payment.ideal.utils.IdealConstant;
+import com.payline.payment.ideal.utils.constant.ContractConfigurationKeys;
+import com.payline.payment.ideal.utils.constant.FormConfigurationKeys;
+import com.payline.payment.ideal.utils.constant.PartnerConfigurationKeys;
 import com.payline.pmapi.bean.common.Amount;
 import com.payline.pmapi.bean.common.Buyer;
 import com.payline.pmapi.bean.configuration.PartnerConfiguration;
@@ -223,8 +225,8 @@ public class Utils {
             "</AcquirerStatusRes>\n";
     public static ContractParametersCheckRequest createContractParametersCheckRequest() {
         Map<String, String> accountInfo = new HashMap<>();
-        accountInfo.put(IdealConstant.MERCHANT_ID_KEY, MERCHANT_ID);
-        accountInfo.put(IdealConstant.MERCHANT_SUBID_KEY, null);
+        accountInfo.put(ContractConfigurationKeys.MERCHANT_ID_KEY, MERCHANT_ID);
+        accountInfo.put(ContractConfigurationKeys.MERCHANT_SUBID_KEY, null);
 
         ContractConfiguration configuration = createContractConfiguration();
 
@@ -300,15 +302,15 @@ public class Utils {
 
     public static ContractConfiguration createContractConfiguration() {
         Map<String, ContractProperty> map = new HashMap<>();
-        map.put(IdealConstant.MERCHANT_ID_KEY, new ContractProperty(MERCHANT_ID));
-        map.put(IdealConstant.MERCHANT_SUBID_KEY, new ContractProperty(null));
+        map.put(ContractConfigurationKeys.MERCHANT_ID_KEY, new ContractProperty(MERCHANT_ID));
+        map.put(ContractConfigurationKeys.MERCHANT_SUBID_KEY, new ContractProperty(null));
 
         return new ContractConfiguration("iDEAL", map);
     }
 
     public static PaymentFormContext createPaymentFormContext(){
         Map<String, String> map = new HashMap<>();
-        map.put(IdealConstant.ISSUER_ID, "RABONL2UXXX");
+        map.put(FormConfigurationKeys.ISSUER_ID, "RABONL2UXXX");
 
         return PaymentFormContext.PaymentFormContextBuilder.aPaymentFormContext()
                 .withPaymentFormParameter(map)
@@ -348,11 +350,12 @@ public class Utils {
 
     public static PartnerConfiguration createDefaultPartnerConfiguration() {
         Map<String, String> map = new HashMap<>();
-        map.put(IdealConstant.URL_ABNAMRO, URL);
+        map.put(PartnerConfigurationKeys.URL_ABNAMRO, URL);
+        map.put(PartnerConfigurationKeys.PUBLIC_KEY_ID, "686643AF86B9BC2F442992919092A7B3835990D4");
         Map<String, String> sensitiveMap = new HashMap<>();
-        sensitiveMap.put(IdealConstant.PRIVATE_KEY, PRIVATE_KEY);
-        sensitiveMap.put(IdealConstant.PUBLIC_KEY, PUBLIC_KEY);
-        sensitiveMap.put(IdealConstant.IDEAL_PUBLIC, IDEAL_PUBLIC_KEY);
+        sensitiveMap.put(PartnerConfigurationKeys.PRIVATE_KEY, PRIVATE_KEY);
+        sensitiveMap.put(PartnerConfigurationKeys.PUBLIC_KEY, PUBLIC_KEY);
+        sensitiveMap.put(PartnerConfigurationKeys.IDEAL_PUBLIC, IDEAL_PUBLIC_KEY);
         return new PartnerConfiguration(map, sensitiveMap);
     }
 

@@ -1,10 +1,10 @@
 package com.payline.payment.ideal.service.impl;
 
+import com.payline.payment.ideal.Utils;
 import com.payline.payment.ideal.bean.IdealError;
 import com.payline.payment.ideal.bean.Transaction;
 import com.payline.payment.ideal.bean.response.IdealStatusResponse;
 import com.payline.payment.ideal.exception.PluginException;
-import com.payline.payment.ideal.Utils;
 import com.payline.payment.ideal.utils.http.IdealHttpClient;
 import com.payline.pmapi.bean.common.FailureCause;
 import com.payline.pmapi.bean.payment.request.RedirectionPaymentRequest;
@@ -19,12 +19,13 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.mockito.*;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.mockito.Spy;
 
 import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -119,11 +120,11 @@ class PaymentWithRedirectionServiceImplTest {
     void handleResponseSUCCESS() {
         // create mock
         String id = "anId";
-        Transaction transaction = Transaction.TransactionBuilder
-                .aTransaction()
-                .withTransactionId(id)
-                .withStatus(Transaction.Status.SUCCESS)
+        Transaction transaction = Transaction.builder()
+                .transactionId(id)
+                .status(Transaction.Status.SUCCESS)
                 .build();
+
         IdealStatusResponse idealStatusResponse = new IdealStatusResponse(null, transaction);
 
         // call method
@@ -133,17 +134,16 @@ class PaymentWithRedirectionServiceImplTest {
         Assertions.assertEquals(PaymentResponseSuccess.class, response.getClass());
         PaymentResponseSuccess responseSuccess = (PaymentResponseSuccess) response;
         Assertions.assertEquals(id, responseSuccess.getPartnerTransactionId());
-        Assertions.assertEquals(Transaction.Status.SUCCESS, responseSuccess.getStatusCode());
+        Assertions.assertEquals(Transaction.Status.SUCCESS.name(), responseSuccess.getStatusCode());
     }
 
     @Test
     void handleResponseOTHER() {
         // create mock
         String id = "anId";
-        Transaction transaction = Transaction.TransactionBuilder
-                .aTransaction()
-                .withTransactionId(id)
-                .withStatus(Transaction.Status.CANCELLED)
+        Transaction transaction = Transaction.builder()
+                .transactionId(id)
+                .status(Transaction.Status.CANCELLED)
                 .build();
         IdealStatusResponse idealStatusResponse = new IdealStatusResponse(null, transaction);
 
@@ -154,7 +154,7 @@ class PaymentWithRedirectionServiceImplTest {
         Assertions.assertEquals(PaymentResponseFailure.class, response.getClass());
         PaymentResponseFailure responseFailure = (PaymentResponseFailure) response;
         Assertions.assertEquals(id, responseFailure.getPartnerTransactionId());
-        Assertions.assertEquals(Transaction.Status.CANCELLED, responseFailure.getErrorCode());
+        Assertions.assertEquals(Transaction.Status.CANCELLED.name(), responseFailure.getErrorCode());
     }
 
 
@@ -164,20 +164,18 @@ class PaymentWithRedirectionServiceImplTest {
         return Stream.of(
                 Arguments.of(Transaction.Status.CANCELLED, FailureCause.CANCEL),
                 Arguments.of(Transaction.Status.FAILURE, FailureCause.REFUSED),
-                Arguments.of(Transaction.Status.EXPIRED, FailureCause.SESSION_EXPIRED),
-                Arguments.of("UNKNOWN", FailureCause.PARTNER_UNKNOWN_ERROR)
+                Arguments.of(Transaction.Status.EXPIRED, FailureCause.SESSION_EXPIRED)
         );
     }
 
     @ParameterizedTest
     @MethodSource("parse_nonExistingTransaction_set")
-    void handleResponseOTHER(String status, FailureCause expectedCause) {
+    void handleResponseOTHER(Transaction.Status status, FailureCause expectedCause) {
         // create mock
         String id = "anId";
-        Transaction transaction = Transaction.TransactionBuilder
-                .aTransaction()
-                .withTransactionId(id)
-                .withStatus(status)
+        Transaction transaction = Transaction.builder()
+                .transactionId(id)
+                .status(status)
                 .build();
         IdealStatusResponse idealStatusResponse = new IdealStatusResponse(null, transaction);
 
@@ -188,37 +186,8 @@ class PaymentWithRedirectionServiceImplTest {
         Assertions.assertEquals(PaymentResponseFailure.class, response.getClass());
         PaymentResponseFailure responseFailure = (PaymentResponseFailure) response;
         Assertions.assertEquals(id, responseFailure.getPartnerTransactionId());
-        Assertions.assertEquals(status, responseFailure.getErrorCode());
+        Assertions.assertEquals(status.name(), responseFailure.getErrorCode());
         Assertions.assertEquals(expectedCause, responseFailure.getFailureCause());
-    }
-
-
-
-
-
-
-
-
-    @Test
-    void handleResponseUnknown() {
-        // create mock
-        String id = "anId";
-        Transaction transaction = Transaction.TransactionBuilder
-                .aTransaction()
-                .withTransactionId(id)
-                .withStatus("foo")
-                .build();
-        IdealStatusResponse idealStatusResponse = new IdealStatusResponse(null, transaction);
-
-        // call method
-        PaymentResponse response = service.handleResponse(id, idealStatusResponse);
-
-        // assertions
-        Assertions.assertEquals(PaymentResponseFailure.class, response.getClass());
-        PaymentResponseFailure responseFailure = (PaymentResponseFailure) response;
-        Assertions.assertEquals(id, responseFailure.getPartnerTransactionId());
-        Assertions.assertEquals("foo", responseFailure.getErrorCode());
-        Assertions.assertEquals(FailureCause.PARTNER_UNKNOWN_ERROR, responseFailure.getFailureCause());
     }
 
     @Test

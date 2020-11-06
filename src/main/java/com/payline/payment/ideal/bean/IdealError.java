@@ -1,7 +1,15 @@
 package com.payline.payment.ideal.bean;
 
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@Getter
 public class IdealError {
 
     @JacksonXmlProperty(localName = "errorCode")
@@ -18,38 +26,4 @@ public class IdealError {
 
     @JacksonXmlProperty(localName = "consumerMessage")
     private String consumerMessage;
-
-    /**
-     * Empty public constructor needed by JacksonXML
-     */
-    public IdealError() {
-    }
-
-    public IdealError(String errorCode, String errorMessage, String errorDetail, String suggestedAction, String consumerMessage) {
-        this.errorCode = errorCode;
-        this.errorMessage = errorMessage;
-        this.errorDetail = errorDetail;
-        this.suggestedAction = suggestedAction;
-        this.consumerMessage = consumerMessage;
-    }
-
-    public String getErrorCode() {
-        return errorCode;
-    }
-
-    public String getErrorMessage() {
-        return errorMessage;
-    }
-
-    public String getErrorDetail() {
-        return errorDetail;
-    }
-
-    public String getSuggestedAction() {
-        return suggestedAction;
-    }
-
-    public String getConsumerMessage() {
-        return consumerMessage;
-    }
 }

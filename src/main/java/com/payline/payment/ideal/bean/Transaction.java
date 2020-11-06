@@ -1,7 +1,16 @@
 package com.payline.payment.ideal.bean;
 
+import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@Getter
 public class Transaction {
     @JacksonXmlProperty(localName = "transactionCreateDateTimestamp")
     private String transactionCreateDateTimestamp;
@@ -24,7 +33,7 @@ public class Transaction {
     private String entranceCode;
 
     @JacksonXmlProperty(localName = "status")
-    private String status;
+    private Status status;
 
     @JacksonXmlProperty(localName = "statusDateTimestamp")
     private String statusDateTimestamp;
@@ -39,183 +48,24 @@ public class Transaction {
     private String consumerBIC;
 
     /**
-     * Empty public constructor needed by JacksonXML
-     */
-    public Transaction() {
-    }
-
-    public String getTransactionId() {
-        return transactionId;
-    }
-
-    public String getPurchaseId() {
-        return purchaseId;
-    }
-
-    public String getAmount() {
-        return amount;
-    }
-
-    public String getCurrency() {
-        return currency;
-    }
-
-    public String getExpirationPeriod() {
-        return expirationPeriod;
-    }
-
-    public String getLanguage() {
-        return language;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public String getEntranceCode() {
-        return entranceCode;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public String getStatusDateTimestamp() {
-        return statusDateTimestamp;
-    }
-
-    public String getConsumerName() {
-        return consumerName;
-    }
-
-    public String getConsumerIBAN() {
-        return consumerIBAN;
-    }
-
-    public String getConsumerBIC() {
-        return consumerBIC;
-    }
-
-    private Transaction(TransactionBuilder builder) {
-        this.transactionId = builder.transactionId;
-        this.purchaseId = builder.purchaseId;
-        this.amount = builder.amount;
-        this.currency = builder.currency;
-        this.expirationPeriod = builder.expirationPeriod;
-        this.language = builder.language;
-        this.description = builder.description;
-        this.entranceCode = builder.entranceCode;
-
-        this.status = builder.status;
-        this.statusDateTimestamp = builder.statusDateTimestamp;
-        this.consumerName = builder.consumerName;
-        this.consumerIBAN = builder.consumerIBAN;
-        this.consumerBIC = builder.consumerBIC;
-    }
-
-
-    public static class TransactionBuilder {
-        private String transactionId;
-        private String purchaseId;
-        private String amount;
-        private String currency;
-        private String expirationPeriod;
-        private String language;
-        private String description;
-        private String entranceCode;
-
-        private String status;
-        private String statusDateTimestamp;
-        private String consumerName;
-        private String consumerIBAN;
-        private String consumerBIC;
-
-        private TransactionBuilder() {
-        }
-
-        public static TransactionBuilder aTransaction() {
-            return new TransactionBuilder();
-        }
-
-        public TransactionBuilder withTransactionId(String transactionId) {
-            this.transactionId = transactionId;
-            return this;
-        }
-
-        public TransactionBuilder withPurchaseId(String purchaseId) {
-            this.purchaseId = purchaseId;
-            return this;
-        }
-
-        public TransactionBuilder withAmount(String amount) {
-            this.amount = amount;
-            return this;
-        }
-
-        public TransactionBuilder withCurrency(String currency) {
-            this.currency = currency;
-            return this;
-        }
-
-        public TransactionBuilder withExpirationPeriod(String expirationPeriod) {
-            this.expirationPeriod = expirationPeriod;
-            return this;
-        }
-
-        public TransactionBuilder withLanguage(String language) {
-            this.language = language;
-            return this;
-        }
-
-        public TransactionBuilder withDescription(String description) {
-            this.description = description;
-            return this;
-        }
-
-        public TransactionBuilder withEntranceCode(String entranceCode) {
-            this.entranceCode = entranceCode;
-            return this;
-        }
-
-        public TransactionBuilder withStatus(String status) {
-            this.status = status;
-            return this;
-        }
-
-        public TransactionBuilder withStatusDateTimestamp(String statusDateTimestamp) {
-            this.statusDateTimestamp = statusDateTimestamp;
-            return this;
-        }
-
-        public TransactionBuilder withConsumerName(String consumerName) {
-            this.consumerName = consumerName;
-            return this;
-        }
-
-        public TransactionBuilder withConsumerIBAN(String consumerIBAN) {
-            this.consumerIBAN = consumerIBAN;
-            return this;
-        }
-
-        public TransactionBuilder withConsumerBIC(String consumerBIC) {
-            this.consumerBIC = consumerBIC;
-            return this;
-        }
-
-        public Transaction build() {
-            return new Transaction(this);
-        }
-
-    }
-
-    /**
      * All possible transaction status
      */
-    public static class Status {
-        public static final String OPEN = "OPEN";
-        public static final String SUCCESS = "SUCCESS";
-        public static final String FAILURE = "FAILURE";
-        public static final String CANCELLED = "CANCELLED";
-        public static final String EXPIRED = "EXPIRED";
+    public enum Status {
+        OPEN("Open"),
+        SUCCESS("Success"),
+        FAILURE("Failure"),
+        CANCELLED("Cancelled"),
+        EXPIRED("Expired");
+
+        private final String statusCode;
+
+        Status(String statusCode) {
+            this.statusCode = statusCode;
+        }
+
+        @JsonValue
+        public String getStatusCode() {
+            return this.statusCode;
+        }
     }
 }

@@ -77,7 +77,7 @@ class SignatureUtilsTest {
     }
 
     @Test
-    void getPublicKeyFromString() throws Exception {
+    void getPublicKeyFromString() {
         PublicKey publicKey = signatureUtils.getPublicKeyFromString(sPublicKey);
         Assertions.assertNotNull(publicKey);
     }
@@ -103,7 +103,7 @@ class SignatureUtilsTest {
         PublicKey publicKey = signatureUtils.getPublicKeyFromString(sPublicKey);
 
         String body = signatureUtils.signXML(message, publicKey, "foo", privateKey);
-        Assertions.assertEquals(signedReference, body);
+        Assertions.assertEquals(signedReference, body.replace("&#13;", ""));
     }
 
     @Test

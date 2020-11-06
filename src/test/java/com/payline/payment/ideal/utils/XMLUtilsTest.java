@@ -110,9 +110,4 @@ class XMLUtilsTest {
         Assertions.assertNotNull(response.getTransaction().getConsumerIBAN());
 
     }
-
-
-    @Test
-    void fromXMLErrorResponse() {
-    }
 }

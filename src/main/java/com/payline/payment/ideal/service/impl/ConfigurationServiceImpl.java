@@ -2,6 +2,7 @@ package com.payline.payment.ideal.service.impl;
 
 import com.payline.payment.ideal.bean.response.IdealDirectoryResponse;
 import com.payline.payment.ideal.utils.XMLUtils;
+import com.payline.payment.ideal.utils.constant.ContractConfigurationKeys;
 import com.payline.payment.ideal.utils.http.IdealHttpClient;
 import com.payline.payment.ideal.utils.i18n.I18nService;
 import com.payline.payment.ideal.utils.properties.ReleaseProperties;
@@ -18,8 +19,6 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
-import static com.payline.payment.ideal.utils.IdealConstant.*;
-
 
 public class ConfigurationServiceImpl implements ConfigurationService {
 
@@ -34,17 +33,17 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         List<AbstractParameter> parameters = new ArrayList<>();
 
         final InputParameter merchantId = new InputParameter();
-        merchantId.setKey(MERCHANT_ID_KEY);
-        merchantId.setLabel(this.i18n.getMessage(MERCHANT_ID_LABEL, locale));
-        merchantId.setDescription(this.i18n.getMessage(MERCHANT_ID_DESCRIPTION, locale));
+        merchantId.setKey(ContractConfigurationKeys.MERCHANT_ID_KEY);
+        merchantId.setLabel(this.i18n.getMessage(ContractConfigurationKeys.MERCHANT_ID_LABEL, locale));
+        merchantId.setDescription(this.i18n.getMessage(ContractConfigurationKeys.MERCHANT_ID_DESCRIPTION, locale));
         merchantId.setRequired(true);
 
         parameters.add(merchantId);
 
         final InputParameter merchantSubId = new InputParameter();
-        merchantSubId.setKey(MERCHANT_SUBID_KEY);
-        merchantSubId.setLabel(this.i18n.getMessage(MERCHANT_SUBID_LABEL, locale));
-        merchantSubId.setDescription(this.i18n.getMessage(MERCHANT_SUBID_DESCRIPTION, locale));
+        merchantSubId.setKey(ContractConfigurationKeys.MERCHANT_SUBID_KEY);
+        merchantSubId.setLabel(this.i18n.getMessage(ContractConfigurationKeys.MERCHANT_SUBID_LABEL, locale));
+        merchantSubId.setDescription(this.i18n.getMessage(ContractConfigurationKeys.MERCHANT_SUBID_DESCRIPTION, locale));
         merchantSubId.setRequired(false);
 
         parameters.add(merchantSubId);
@@ -74,7 +73,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         try {
             IdealDirectoryResponse response = client.directoryRequest(retrievePluginConfigurationRequest);
             if (response.getError() != null) {
-                LOGGER.error("Could not retrieve plugin configuration due to a partner error: " + response.getError().getErrorCode());
+                LOGGER.error("Could not retrieve plugin configuration due to a partner error: {}", response.getError().getErrorCode());
                 return retrievePluginConfigurationRequest.getPluginConfiguration();
             } else {
                 return XMLUtils.getInstance().toXml(response.getDirectory());

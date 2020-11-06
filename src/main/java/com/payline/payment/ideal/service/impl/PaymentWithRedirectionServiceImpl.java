@@ -71,11 +71,9 @@ public class PaymentWithRedirectionServiceImpl implements PaymentWithRedirection
     }
 
     PaymentResponse handleResponse(String partnerTransactionId, IdealStatusResponse response) {
-
-
         if (response.getError() != null) {
             String errorCode = response.getError().getErrorCode();
-            LOGGER.info(response.getError().toString());
+            LOGGER.info("an error occurred: {}",response.getError());
 
             return PaymentResponseFailure.PaymentResponseFailureBuilder
                     .aPaymentResponseFailure()
@@ -88,38 +86,37 @@ public class PaymentWithRedirectionServiceImpl implements PaymentWithRedirection
             partnerTransactionId = response.getTransaction().getTransactionId();
 
             // check the status response: "SUCCESS", "OPEN", other...
-            String status = response.getTransaction().getStatus();
-
-            if (Transaction.Status.SUCCESS.equalsIgnoreCase(status)) {
+            Transaction.Status status = response.getTransaction().getStatus();
+            if (Transaction.Status.SUCCESS.equals(status)) {
                 return PaymentResponseSuccess.PaymentResponseSuccessBuilder
                         .aPaymentResponseSuccess()
                         .withPartnerTransactionId(partnerTransactionId)
-                        .withStatusCode(status)
+                        .withStatusCode(status.name())
                         .withTransactionAdditionalData(response.getTransaction().getConsumerIBAN())
                         .withTransactionDetails(new EmptyTransactionDetails())
                         .build();
-            } else if (Transaction.Status.OPEN.equalsIgnoreCase(status)) {
+            } else if (Transaction.Status.OPEN.equals(status)) {
                 return PaymentResponseOnHold.PaymentResponseOnHoldBuilder
                         .aPaymentResponseOnHold()
                         .withOnHoldCause(OnHoldCause.ASYNC_RETRY)
                         .withBuyerPaymentId(new EmptyTransactionDetails())
                         .withPartnerTransactionId(partnerTransactionId)
-                        .withStatusCode(status)
+                        .withStatusCode(status.name())
                         .build();
             } else {
                 FailureCause cause = FailureCause.PARTNER_UNKNOWN_ERROR;
-                if (Transaction.Status.CANCELLED.equalsIgnoreCase(status)) {
+                if (Transaction.Status.CANCELLED.equals(status)) {
                     cause = FailureCause.CANCEL;
-                } else if (Transaction.Status.FAILURE.equalsIgnoreCase(status)) {
+                } else if (Transaction.Status.FAILURE.equals(status)) {
                     cause = FailureCause.REFUSED;
-                } else if (Transaction.Status.EXPIRED.equalsIgnoreCase(status)) {
+                } else if (Transaction.Status.EXPIRED.equals(status)) {
                     cause = FailureCause.SESSION_EXPIRED;
                 }
 
                 return PaymentResponseFailure.PaymentResponseFailureBuilder
                         .aPaymentResponseFailure()
                         .withPartnerTransactionId(partnerTransactionId)
-                        .withErrorCode(status)
+                        .withErrorCode(status.name())
                         .withFailureCause(cause)
                         .build();
 

@@ -5,8 +5,14 @@ import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 import com.payline.payment.ideal.bean.Acquirer;
 import com.payline.payment.ideal.bean.IdealError;
 import com.payline.payment.ideal.bean.Transaction;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @JacksonXmlRootElement(localName = "AcquirerStatusRes", namespace = "http://www.idealdesk.com/ideal/messages/mer-acq/3.3.1")
+@NoArgsConstructor
+@AllArgsConstructor
+@Getter
 public class IdealStatusResponse extends IdealResponse {
 
     @JacksonXmlProperty(localName = "Acquirer")
@@ -15,25 +21,9 @@ public class IdealStatusResponse extends IdealResponse {
     @JacksonXmlProperty(localName = "Transaction")
     private Transaction transaction;
 
-    public IdealStatusResponse() {
-    }
-
-    public IdealStatusResponse(Acquirer acquirer, Transaction transaction) {
-        this.acquirer = acquirer;
-        this.transaction = transaction;
-    }
-
     public IdealStatusResponse(IdealError error, Acquirer acquirer, Transaction transaction) {
         super(error);
         this.acquirer = acquirer;
         this.transaction = transaction;
-    }
-
-    public Acquirer getAcquirer() {
-        return acquirer;
-    }
-
-    public Transaction getTransaction() {
-        return transaction;
     }
 }

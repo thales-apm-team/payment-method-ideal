@@ -18,7 +18,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Map;
 
-public class TestIT extends AbstractPaymentIntegration {
+class TestIT extends AbstractPaymentIntegration {
     static final Logger LOGGER = LogManager.getLogger(TestIT.class);
 
     private ConfigurationServiceImpl configurationService = new ConfigurationServiceImpl();
@@ -27,7 +27,7 @@ public class TestIT extends AbstractPaymentIntegration {
 
 
     @Test
-    public void fullPaymentTest() throws Exception {
+    void fullPaymentTest() throws Exception {
 
 
         // connection to Swish backend test

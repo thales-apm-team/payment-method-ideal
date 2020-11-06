@@ -1,11 +1,11 @@
 package com.payline.payment.ideal.service.impl;
 
+import com.payline.payment.ideal.Utils;
 import com.payline.payment.ideal.bean.IdealError;
 import com.payline.payment.ideal.bean.Issuer;
 import com.payline.payment.ideal.bean.Transaction;
 import com.payline.payment.ideal.bean.response.IdealPaymentResponse;
 import com.payline.payment.ideal.exception.PluginException;
-import com.payline.payment.ideal.Utils;
 import com.payline.payment.ideal.utils.http.IdealHttpClient;
 import com.payline.pmapi.bean.payment.response.PaymentResponse;
 import com.payline.pmapi.bean.payment.response.impl.PaymentResponseFailure;
@@ -37,16 +37,14 @@ class PaymentServiceImplTest {
     void paymentRequest() {
         // create Mock
         String id = "anId";
-        Transaction transaction = Transaction.TransactionBuilder
-                .aTransaction()
-                .withTransactionId(id)
+        Transaction transaction = Transaction.builder()
+                .transactionId(id)
                 .build();
 
-        Issuer issuer = Issuer.IssuerBuilder
-                .anIssuerBuilder()
-                .withId("issuerId")
-                .withName("issuerName")
-                .withUrl(Utils.SUCCESS_URL)
+        Issuer issuer = Issuer.builder()
+                .issuerId("issuerId")
+                .issuerName("issuerName")
+                .issuerAuthenticationURL(Utils.SUCCESS_URL)
                 .build();
 
         IdealPaymentResponse idealPaymentResponse = new IdealPaymentResponse(null, null, issuer, transaction);
@@ -103,16 +101,14 @@ class PaymentServiceImplTest {
     void paymentRequestwithMalformedUrlException() {
         // create Mock
         String id = "anId";
-        Transaction transaction = Transaction.TransactionBuilder
-                .aTransaction()
-                .withTransactionId(id)
+        Transaction transaction = Transaction.builder()
+                .transactionId(id)
                 .build();
 
-        Issuer issuer = Issuer.IssuerBuilder
-                .anIssuerBuilder()
-                .withId("issuerId")
-                .withName("issuerName")
-                .withUrl("a malformedUrl")
+        Issuer issuer = Issuer.builder()
+                .issuerId("issuerId")
+                .issuerName("issuerName")
+                .issuerAuthenticationURL("a malformedUrl")
                 .build();
 
         IdealPaymentResponse idealPaymentResponse = new IdealPaymentResponse(null, null, issuer, transaction);

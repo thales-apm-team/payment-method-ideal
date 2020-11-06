@@ -8,8 +8,8 @@ import com.payline.payment.ideal.bean.response.IdealDirectoryResponse;
 import com.payline.payment.ideal.bean.response.IdealPaymentResponse;
 import com.payline.payment.ideal.bean.response.IdealStatusResponse;
 import com.payline.payment.ideal.exception.PluginException;
-import com.payline.payment.ideal.utils.IdealConstant;
 import com.payline.payment.ideal.utils.XMLUtils;
+import com.payline.payment.ideal.utils.constant.PartnerConfigurationKeys;
 import com.payline.payment.ideal.utils.security.SignatureUtils;
 import com.payline.pmapi.bean.common.FailureCause;
 import com.payline.pmapi.bean.configuration.PartnerConfiguration;
@@ -80,9 +80,9 @@ public class IdealHttpClient extends AbstractHttpClient {
      */
     String createBody(IdealBean request, PartnerConfiguration configuration) {
         String xmlBody = xmlUtils.toXml(request);
-        PublicKey publicKey = signatureUtils.getPublicKeyFromString(configuration.getProperty(IdealConstant.PUBLIC_KEY));
-        String publicKeyId = configuration.getProperty(IdealConstant.PUBLIC_KEY_ID);
-        PrivateKey privateKey = signatureUtils.getPrivateKeyFromString(configuration.getProperty(IdealConstant.PRIVATE_KEY));
+        PublicKey publicKey = signatureUtils.getPublicKeyFromString(configuration.getProperty(PartnerConfigurationKeys.PUBLIC_KEY));
+        String publicKeyId = configuration.getProperty(PartnerConfigurationKeys.PUBLIC_KEY_ID);
+        PrivateKey privateKey = signatureUtils.getPrivateKeyFromString(configuration.getProperty(PartnerConfigurationKeys.PRIVATE_KEY));
         return signatureUtils.signXML(xmlBody, publicKey, publicKeyId, privateKey);
     }
 
@@ -92,9 +92,8 @@ public class IdealHttpClient extends AbstractHttpClient {
      *
      * @param request
      * @return the response of the directoryRequestHttp call
-     * @throws PluginException
      */
-    public IdealDirectoryResponse directoryRequest(ContractParametersCheckRequest request) throws PluginException {
+    public IdealDirectoryResponse directoryRequest(ContractParametersCheckRequest request) {
         IdealDirectoryRequest directoryRequest = new IdealDirectoryRequest(request);
         return this.directoryRequest(directoryRequest, request.getPartnerConfiguration());
     }
@@ -104,9 +103,8 @@ public class IdealHttpClient extends AbstractHttpClient {
      *
      * @param request
      * @return the response of the directoryRequestHttp call
-     * @throws PluginException
      */
-    public IdealDirectoryResponse directoryRequest(RetrievePluginConfigurationRequest request) throws PluginException {
+    public IdealDirectoryResponse directoryRequest(RetrievePluginConfigurationRequest request) {
         IdealDirectoryRequest directoryRequest = new IdealDirectoryRequest(request.getContractConfiguration());
         return this.directoryRequest(directoryRequest, request.getPartnerConfiguration());
     }
@@ -117,11 +115,10 @@ public class IdealHttpClient extends AbstractHttpClient {
      * @param directoryRequest
      * @param configuration
      * @return
-     * @throws PluginException
      */
-    private IdealDirectoryResponse directoryRequest(IdealDirectoryRequest directoryRequest, PartnerConfiguration configuration) throws PluginException {
+    private IdealDirectoryResponse directoryRequest(IdealDirectoryRequest directoryRequest, PartnerConfiguration configuration) {
         // get url
-        String url = configuration.getProperty(IdealConstant.URL_ABNAMRO);
+        String url = configuration.getProperty(PartnerConfigurationKeys.URL_ABNAMRO);
 
         // create headers
         Header[] headers = createHeaders();
@@ -136,7 +133,7 @@ public class IdealHttpClient extends AbstractHttpClient {
         checkResponse(response);
 
         // check the response signature
-        PublicKey idealPublicKey = signatureUtils.getPublicKeyFromString(configuration.getProperty(IdealConstant.IDEAL_PUBLIC));
+        PublicKey idealPublicKey = signatureUtils.getPublicKeyFromString(configuration.getProperty(PartnerConfigurationKeys.IDEAL_PUBLIC));
         signatureUtils.verifySignatureXML(response.getContent(), idealPublicKey);
         return xmlUtils.fromXML(response.getContent(), IdealDirectoryResponse.class);
     }
@@ -147,12 +144,11 @@ public class IdealHttpClient extends AbstractHttpClient {
      *
      * @param request
      * @return
-     * @throws PluginException
      */
-    public IdealPaymentResponse transactionRequest(PaymentRequest request) throws PluginException {
+    public IdealPaymentResponse transactionRequest(PaymentRequest request) {
 
         // get url
-        String url = request.getPartnerConfiguration().getProperty(IdealConstant.URL_ABNAMRO);
+        String url = request.getPartnerConfiguration().getProperty(PartnerConfigurationKeys.URL_ABNAMRO);
 
         // create headers
         Header[] headers = createHeaders();
@@ -168,7 +164,7 @@ public class IdealHttpClient extends AbstractHttpClient {
         checkResponse(response);
 
         // check the response signature
-        PublicKey idealPublicKey = signatureUtils.getPublicKeyFromString(request.getPartnerConfiguration().getProperty(IdealConstant.IDEAL_PUBLIC));
+        PublicKey idealPublicKey = signatureUtils.getPublicKeyFromString(request.getPartnerConfiguration().getProperty(PartnerConfigurationKeys.IDEAL_PUBLIC));
         signatureUtils.verifySignatureXML(response.getContent(), idealPublicKey);
 
         // return an Ideal response object
@@ -180,9 +176,8 @@ public class IdealHttpClient extends AbstractHttpClient {
      *
      * @param request
      * @return
-     * @throws PluginException
      */
-    public IdealStatusResponse statusRequest(RedirectionPaymentRequest request) throws PluginException {
+    public IdealStatusResponse statusRequest(RedirectionPaymentRequest request) {
         IdealStatusRequest statusRequest = new IdealStatusRequest(request);
         return this.statusRequest(statusRequest, request.getPartnerConfiguration());
     }
@@ -207,7 +202,7 @@ public class IdealHttpClient extends AbstractHttpClient {
      */
     private IdealStatusResponse statusRequest(IdealStatusRequest statusRequest, PartnerConfiguration configuration) {
         // get url
-        String url = configuration.getProperty(IdealConstant.URL_ABNAMRO);
+        String url = configuration.getProperty(PartnerConfigurationKeys.URL_ABNAMRO);
 
         // create headers
         Header[] headers = createHeaders();
@@ -222,7 +217,7 @@ public class IdealHttpClient extends AbstractHttpClient {
         checkResponse(response);
 
         // check the response signature
-        PublicKey idealPublicKey = signatureUtils.getPublicKeyFromString(configuration.getProperty(IdealConstant.IDEAL_PUBLIC));
+        PublicKey idealPublicKey = signatureUtils.getPublicKeyFromString(configuration.getProperty(PartnerConfigurationKeys.IDEAL_PUBLIC));
         signatureUtils.verifySignatureXML(response.getContent(), idealPublicKey);
 
         // return an Ideal response object

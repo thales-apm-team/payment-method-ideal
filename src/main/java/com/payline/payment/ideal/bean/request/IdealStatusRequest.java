@@ -5,7 +5,7 @@ import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 import com.payline.payment.ideal.bean.IdealBean;
 import com.payline.payment.ideal.bean.Merchant;
 import com.payline.payment.ideal.bean.Transaction;
-import com.payline.payment.ideal.utils.IdealConstant;
+import com.payline.payment.ideal.utils.constant.ContractConfigurationKeys;
 import com.payline.pmapi.bean.payment.request.RedirectionPaymentRequest;
 import com.payline.pmapi.bean.payment.request.TransactionStatusRequest;
 
@@ -20,25 +20,23 @@ public class IdealStatusRequest extends IdealBean {
 
     public IdealStatusRequest(RedirectionPaymentRequest request) {
         this.merchant = new Merchant(
-                request.getContractConfiguration().getProperty(IdealConstant.MERCHANT_ID_KEY).getValue()
-                , request.getContractConfiguration().getProperty(IdealConstant.MERCHANT_SUBID_KEY).getValue());
+                request.getContractConfiguration().getProperty(ContractConfigurationKeys.MERCHANT_ID_KEY).getValue()
+                , request.getContractConfiguration().getProperty(ContractConfigurationKeys.MERCHANT_SUBID_KEY).getValue());
 
         // in RedirectionPaymentRequests, field 'transactionId' is the partner transactionId
-        this.transaction = Transaction.TransactionBuilder
-                .aTransaction()
-                .withTransactionId(request.getTransactionId())
+        this.transaction = Transaction.builder()
+                .transactionId(request.getTransactionId())
                 .build();
     }
 
     public IdealStatusRequest(TransactionStatusRequest request) {
         this.merchant = new Merchant(
-                request.getContractConfiguration().getProperty(IdealConstant.MERCHANT_ID_KEY).getValue()
-                , request.getContractConfiguration().getProperty(IdealConstant.MERCHANT_SUBID_KEY).getValue());
+                request.getContractConfiguration().getProperty(ContractConfigurationKeys.MERCHANT_ID_KEY).getValue()
+                , request.getContractConfiguration().getProperty(ContractConfigurationKeys.MERCHANT_SUBID_KEY).getValue());
 
         // in TransactionStatusRequest, field 'transactionId' is the partner transactionId
-        this.transaction = Transaction.TransactionBuilder
-                .aTransaction()
-                .withTransactionId(request.getTransactionId())
+        this.transaction = Transaction.builder()
+                .transactionId(request.getTransactionId())
                 .build();
     }
 }

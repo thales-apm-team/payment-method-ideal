@@ -2,14 +2,13 @@ package com.payline.payment.ideal.service.impl;
 
 import com.payline.pmapi.bean.notification.response.NotificationResponse;
 import com.payline.pmapi.bean.notification.response.impl.IgnoreNotificationResponse;
+import com.payline.pmapi.bean.payment.request.NotifyTransactionStatusRequest;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
 
 class NotificationServiceImplTest {
 
@@ -31,5 +30,6 @@ class NotificationServiceImplTest {
 
     @Test
     void notifyTransactionStatus() {
+        Assertions.assertDoesNotThrow(()-> service.notifyTransactionStatus(Mockito.mock(NotifyTransactionStatusRequest.class)));
     }
 }

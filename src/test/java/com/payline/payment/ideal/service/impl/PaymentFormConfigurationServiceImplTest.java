@@ -1,29 +1,20 @@
 package com.payline.payment.ideal.service.impl;
 
-import com.payline.payment.ideal.exception.PluginException;
 import com.payline.payment.ideal.Utils;
-import com.payline.pmapi.bean.paymentform.bean.PaymentFormLogo;
+import com.payline.payment.ideal.exception.PluginException;
 import com.payline.pmapi.bean.paymentform.bean.field.SelectOption;
 import com.payline.pmapi.bean.paymentform.bean.form.BankTransferForm;
 import com.payline.pmapi.bean.paymentform.request.PaymentFormConfigurationRequest;
-import com.payline.pmapi.bean.paymentform.request.PaymentFormLogoRequest;
 import com.payline.pmapi.bean.paymentform.response.configuration.PaymentFormConfigurationResponse;
 import com.payline.pmapi.bean.paymentform.response.configuration.impl.PaymentFormConfigurationResponseFailure;
 import com.payline.pmapi.bean.paymentform.response.configuration.impl.PaymentFormConfigurationResponseSpecific;
-import com.payline.pmapi.bean.paymentform.response.logo.PaymentFormLogoResponse;
-import com.payline.pmapi.bean.paymentform.response.logo.impl.PaymentFormLogoResponseFile;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
 
 import java.util.List;
-import java.util.Locale;
-
-import static org.mockito.Mockito.when;
 
 
 class PaymentFormConfigurationServiceImplTest {
@@ -53,9 +44,8 @@ class PaymentFormConfigurationServiceImplTest {
             "      </Country>" +
             "   </Directory>";
 
-    @InjectMocks
     @Spy
-    PaymentFormConfigurationServiceImpl service;
+    PaymentFormConfigurationServiceImpl service = new PaymentFormConfigurationServiceImpl();
 
     @BeforeEach
     void setup() {
@@ -117,31 +107,5 @@ class PaymentFormConfigurationServiceImplTest {
     }
 
 
-    @Test
-    void getPaymentFormLogo() {
-        //Mock PaymentFormLogoRequest
-        PaymentFormLogoRequest paymentFormLogoRequest = Mockito.mock(PaymentFormLogoRequest.class);
-        when(paymentFormLogoRequest.getLocale()).thenReturn(Locale.FRANCE);
 
-        PaymentFormLogoResponse paymentFormLogoResponse = service.getPaymentFormLogo(paymentFormLogoRequest);
-
-        Assertions.assertNotNull(paymentFormLogoResponse);
-        Assertions.assertTrue(paymentFormLogoResponse instanceof PaymentFormLogoResponseFile);
-
-        PaymentFormLogoResponseFile casted = (PaymentFormLogoResponseFile) paymentFormLogoResponse;
-        Assertions.assertEquals(30, casted.getHeight());
-        Assertions.assertEquals(120, casted.getWidth());
-    }
-
-    @Test
-    void getLogo() {
-        // when: getLogo is called
-        String paymentMethodIdentifier = "iDEAL";
-        PaymentFormLogo paymentFormLogo = service.getLogo(paymentMethodIdentifier, Locale.FRANCE);
-
-
-        // then: returned elements are not null
-        Assertions.assertNotNull(paymentFormLogo.getFile());
-        Assertions.assertNotNull(paymentFormLogo.getContentType());
-    }
 }

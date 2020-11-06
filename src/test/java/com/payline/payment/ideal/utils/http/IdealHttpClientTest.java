@@ -31,15 +31,17 @@ import static org.mockito.Mockito.*;
 class IdealHttpClientTest {
     private String signedResponse = "foo";
 
+    @InjectMocks
+    @Spy
+    private IdealHttpClient client = IdealHttpClient.getInstance();
+
     @Mock
     private SignatureUtils signatureUtils;
 
     @Mock
     private CloseableHttpClient closeableHttpClient;
 
-    @InjectMocks
-    @Spy
-    private IdealHttpClient client;
+
 
     @BeforeEach
     void setup() {
@@ -197,7 +199,6 @@ class IdealHttpClientTest {
 
         String body = client.createBody(request, Utils.createDefaultPartnerConfiguration());
 
-        System.out.println(body);
         Assertions.assertNotNull(body);
         Assertions.assertEquals(signedResponse, body);
     }

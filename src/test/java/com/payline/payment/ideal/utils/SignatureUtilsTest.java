@@ -77,7 +77,7 @@ class SignatureUtilsTest {
     }
 
     @Test
-    void getPublicKeyFromString() throws Exception {
+    void getPublicKeyFromString() {
         PublicKey publicKey = signatureUtils.getPublicKeyFromString(sPublicKey);
         Assertions.assertNotNull(publicKey);
     }

@@ -2,8 +2,8 @@ package com.payline.payment.ideal.service.impl;
 
 import com.payline.payment.ideal.bean.response.IdealPaymentResponse;
 import com.payline.payment.ideal.exception.PluginException;
-import com.payline.payment.ideal.utils.IdealConstant;
 import com.payline.payment.ideal.utils.PluginUtils;
+import com.payline.payment.ideal.utils.constant.IdealConstant;
 import com.payline.payment.ideal.utils.http.IdealHttpClient;
 import com.payline.pmapi.bean.common.FailureCause;
 import com.payline.pmapi.bean.payment.request.PaymentRequest;
@@ -33,7 +33,7 @@ public class PaymentServiceImpl implements PaymentService {
 
             if (response.getError() != null) {
                 String errorCode = response.getError().getErrorCode();
-                LOGGER.info(response.getError().toString());
+                LOGGER.info("an error occurred: {}",response.getError());
 
                 return PaymentResponseFailure.PaymentResponseFailureBuilder
                         .aPaymentResponseFailure()

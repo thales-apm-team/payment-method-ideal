@@ -1,8 +1,6 @@
 package com.payline.payment.ideal.bean;
 
-import com.payline.payment.ideal.Utils;
 import com.payline.payment.ideal.bean.request.IdealDirectoryRequest;
-import com.payline.payment.ideal.bean.request.IdealPaymentRequest;
 import com.payline.payment.ideal.utils.XMLUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -38,16 +36,11 @@ class BeanTest {
 
     @Test
     void beanTest() {
-        IdealDirectoryRequest idealDirectoryRequest = new IdealDirectoryRequest(Utils.createContractParametersCheckRequest());
-        System.out.println(xmlUtils.toXml(idealDirectoryRequest));
-
-        IdealPaymentRequest idealPaymentRequest = new IdealPaymentRequest(Utils.createCompletePaymentBuilder().build());
-        System.out.println(xmlUtils.toXml(idealPaymentRequest));
-
         IdealDirectoryRequest idealDirectoryRequest2 = xmlUtils.fromXML(bean, IdealDirectoryRequest.class);
+        Merchant merchant = new Merchant("100000001","1");
 
-        Assertions.assertNotNull(idealDirectoryRequest2.getMerchant());
-        Assertions.assertNotNull(idealDirectoryRequest2.getMerchant());
+        Assertions.assertEquals(merchant.getMerchantId(), idealDirectoryRequest2.getMerchant().getMerchantId());
+        Assertions.assertEquals(merchant.getSubId(), idealDirectoryRequest2.getMerchant().getSubId());
 
     }
 }

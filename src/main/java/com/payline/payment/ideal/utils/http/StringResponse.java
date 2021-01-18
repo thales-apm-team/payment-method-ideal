@@ -1,5 +1,9 @@
 package com.payline.payment.ideal.utils.http;
 
+import com.payline.payment.ideal.exception.PluginException;
+import com.payline.payment.ideal.utils.PluginUtils;
+import com.payline.pmapi.bean.common.FailureCause;
+import lombok.extern.log4j.Log4j2;
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.util.EntityUtils;
@@ -11,6 +15,7 @@ import java.util.Map;
 /**
  * Simple POJO supporting the core elements of an HTTP response, in a more readable format (especially the content).
  */
+@Log4j2
 public class StringResponse {
 
     private String content;
@@ -62,13 +67,16 @@ public class StringResponse {
             try {
                 instance.content = EntityUtils.toString(httpResponse.getEntity());
             } catch (IOException e) {
-                instance.content = null;
+                log.error("An error occurs reading the input stream");
+                throw new PluginException(e.getMessage(), FailureCause.INVALID_DATA);
             }
 
             instance.headers = new HashMap<>();
             Header[] rawHeaders = httpResponse.getAllHeaders();
             for (int i = 0; i < rawHeaders.length; i++) {
-                instance.headers.put(rawHeaders[i].getName().toLowerCase(), rawHeaders[i].getValue());
+                if(!PluginUtils.isEmpty(rawHeaders[i].getName()) && !PluginUtils.isEmpty(rawHeaders[i].getValue())) {
+                    instance.headers.put(rawHeaders[i].getName().toLowerCase(), rawHeaders[i].getValue());
+                }
             }
         }
 

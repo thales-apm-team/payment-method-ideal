@@ -35,7 +35,7 @@ class PaymentWithRedirectionServiceImplTest {
 
     @InjectMocks
     @Spy
-    private PaymentWithRedirectionServiceImpl service;
+    private PaymentWithRedirectionServiceImpl underTest;
 
     @BeforeEach
     void setup() {
@@ -54,11 +54,11 @@ class PaymentWithRedirectionServiceImplTest {
                 .withTransactionDetails(new EmptyTransactionDetails())
                 .withPartnerTransactionId(id)
                 .build();
-        doReturn(success).when(service).handleResponse(any(), any());
+        doReturn(success).when(underTest).handleResponse(any(), any());
 
         // call method
         RedirectionPaymentRequest request = Utils.createCompleteRedirectionPayment(id);
-        PaymentResponse response = service.finalizeRedirectionPayment(request);
+        PaymentResponse response = underTest.finalizeRedirectionPayment(request);
 
         // assertions
         Assertions.assertEquals(PaymentResponseSuccess.class, response.getClass());
@@ -70,10 +70,10 @@ class PaymentWithRedirectionServiceImplTest {
     void finalizeRedirectionPaymentWithPluginException() {
         // create mock
         RedirectionPaymentRequest request = Utils.createCompleteRedirectionPayment("anId");
-        doThrow(new PluginException("an error")).when(service).handleResponse(any(), any());
+        doThrow(new PluginException("an error")).when(underTest).handleResponse(any(), any());
 
         // call method
-        PaymentResponse response = service.finalizeRedirectionPayment(request);
+        PaymentResponse response = underTest.finalizeRedirectionPayment(request);
 
         // assertions
         Assertions.assertEquals(PaymentResponseFailure.class, response.getClass());
@@ -91,11 +91,11 @@ class PaymentWithRedirectionServiceImplTest {
                 .withTransactionDetails(new EmptyTransactionDetails())
                 .withPartnerTransactionId(id)
                 .build();
-        doReturn(success).when(service).handleResponse(any(), any());
+        doReturn(success).when(underTest).handleResponse(any(), any());
 
         // call method
         TransactionStatusRequest request = Utils.createTransactionRequestBuilder().build();
-        PaymentResponse response = service.handleSessionExpired(request);
+        PaymentResponse response = underTest.handleSessionExpired(request);
 
         // assertions
         Assertions.assertEquals(PaymentResponseSuccess.class, response.getClass());
@@ -107,10 +107,10 @@ class PaymentWithRedirectionServiceImplTest {
     void handleSessionExpiredWithPluginException() {
         // create mock
         TransactionStatusRequest request = Utils.createTransactionRequestBuilder().build();
-        doThrow(new PluginException("an error")).when(service).handleResponse(any(), any());
+        doThrow(new PluginException("an error")).when(underTest).handleResponse(any(), any());
 
         // call method
-        PaymentResponse response = service.handleSessionExpired(request);
+        PaymentResponse response = underTest.handleSessionExpired(request);
 
         // assertions
         Assertions.assertEquals(PaymentResponseFailure.class, response.getClass());
@@ -128,7 +128,7 @@ class PaymentWithRedirectionServiceImplTest {
         IdealStatusResponse idealStatusResponse = new IdealStatusResponse(null, transaction);
 
         // call method
-        PaymentResponse response = service.handleResponse(id, idealStatusResponse);
+        PaymentResponse response = underTest.handleResponse(id, idealStatusResponse);
 
         // assertions
         Assertions.assertEquals(PaymentResponseSuccess.class, response.getClass());
@@ -148,7 +148,7 @@ class PaymentWithRedirectionServiceImplTest {
         IdealStatusResponse idealStatusResponse = new IdealStatusResponse(null, transaction);
 
         // call method
-        PaymentResponse response = service.handleResponse(id, idealStatusResponse);
+        PaymentResponse response = underTest.handleResponse(id, idealStatusResponse);
 
         // assertions
         Assertions.assertEquals(PaymentResponseFailure.class, response.getClass());
@@ -180,7 +180,7 @@ class PaymentWithRedirectionServiceImplTest {
         IdealStatusResponse idealStatusResponse = new IdealStatusResponse(null, transaction);
 
         // call method
-        PaymentResponse response = service.handleResponse(id, idealStatusResponse);
+        PaymentResponse response = underTest.handleResponse(id, idealStatusResponse);
 
         // assertions
         Assertions.assertEquals(PaymentResponseFailure.class, response.getClass());
@@ -203,7 +203,7 @@ class PaymentWithRedirectionServiceImplTest {
         IdealStatusResponse idealStatusResponse = new IdealStatusResponse(error, null, null);
 
         // call method
-        PaymentResponse response = service.handleResponse(id, idealStatusResponse);
+        PaymentResponse response = underTest.handleResponse(id, idealStatusResponse);
 
         // assertions
         Assertions.assertEquals(PaymentResponseFailure.class, response.getClass());

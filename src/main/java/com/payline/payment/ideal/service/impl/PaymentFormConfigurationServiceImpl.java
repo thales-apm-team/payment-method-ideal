@@ -17,15 +17,14 @@ import com.payline.pmapi.bean.paymentform.request.PaymentFormConfigurationReques
 import com.payline.pmapi.bean.paymentform.response.configuration.PaymentFormConfigurationResponse;
 import com.payline.pmapi.bean.paymentform.response.configuration.impl.PaymentFormConfigurationResponseFailure;
 import com.payline.pmapi.bean.paymentform.response.configuration.impl.PaymentFormConfigurationResponseSpecific;
-import com.payline.pmapi.logger.LogManager;
-import org.apache.logging.log4j.Logger;
+import lombok.extern.log4j.Log4j2;
 
 import java.util.ArrayList;
 import java.util.List;
 
-
+@Log4j2
 public class PaymentFormConfigurationServiceImpl extends LogoPaymentFormConfigurationService {
-    private static final Logger LOGGER = LogManager.getLogger(PaymentFormConfigurationServiceImpl.class);
+    private XMLUtils xmlUtils = XMLUtils.getInstance();
 
     @Override
     public PaymentFormConfigurationResponse getPaymentFormConfiguration(PaymentFormConfigurationRequest request) {
@@ -48,7 +47,7 @@ public class PaymentFormConfigurationServiceImpl extends LogoPaymentFormConfigur
                     .build();
 
         } catch (RuntimeException e) {
-            LOGGER.error("Unexpected plugin error", e);
+            log.error("Unexpected plugin error", e);
             return PaymentFormConfigurationResponseFailure.PaymentFormConfigurationResponseFailureBuilder
                     .aPaymentFormConfigurationResponseFailure()
                     .withErrorCode(PluginException.runtimeErrorCode(e))
@@ -65,21 +64,24 @@ public class PaymentFormConfigurationServiceImpl extends LogoPaymentFormConfigur
 
         List<SelectOption> options = new ArrayList<>();
 
-        Directory directory = XMLUtils.getInstance().fromXML(configuration, Directory.class);
+        Directory directory = xmlUtils.fromXML(configuration, Directory.class);
         if (directory == null || directory.getCountries() == null) {
             throw new InvalidDataException("Unable to parse plugin configuration");
 
         }
 
         for (Country country : directory.getCountries()) {
-            for (Issuer issuer : country.getIssuers()) {
-                SelectOption option = SelectOption.SelectOptionBuilder
-                        .aSelectOption()
-                        .withKey(issuer.getIssuerId())
-                        .withValue(issuer.getIssuerName())
-                        .build();
 
-                options.add(option);
+            if (country != null && country.getIssuers() != null) {
+                for (Issuer issuer : country.getIssuers()) {
+                    SelectOption option = SelectOption.SelectOptionBuilder
+                            .aSelectOption()
+                            .withKey(issuer.getIssuerId())
+                            .withValue(issuer.getIssuerName())
+                            .build();
+
+                    options.add(option);
+                }
             }
         }
 

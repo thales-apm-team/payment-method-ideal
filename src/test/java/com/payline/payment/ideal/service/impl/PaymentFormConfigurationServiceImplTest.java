@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -68,7 +69,30 @@ class PaymentFormConfigurationServiceImplTest {
 
         Assertions.assertEquals(BankTransferForm.class, responseSpecific.getPaymentForm().getClass());
         BankTransferForm bankTransferForm = (BankTransferForm) responseSpecific.getPaymentForm();
-        Assertions.assertFalse(bankTransferForm.getBanks().isEmpty());
+
+        SelectOption bank1 = bankTransferForm.getBanks().stream()
+                .filter(bank -> "ABNANL2AXXX".equals(bank.getKey()))
+                .findAny()
+                .orElse(null);
+        Assertions.assertEquals("ABN AMRO Bank", bank1.getValue());
+
+        SelectOption bank2 = bankTransferForm.getBanks().stream()
+                .filter(bank -> "FRBKNL2LXXX".equals(bank.getKey()))
+                .findAny()
+                .orElse(null);
+        Assertions.assertEquals("Friesland Bank", bank2.getValue());
+
+        SelectOption bank3 = bankTransferForm.getBanks().stream()
+                .filter(bank -> "INGBNL2AXXX".equals(bank.getKey()))
+                .findAny()
+                .orElse(null);
+        Assertions.assertEquals("ING", bank3.getValue());
+
+        SelectOption bank4 = bankTransferForm.getBanks().stream()
+                .filter(bank -> "KREDBE22XXX".equals(bank.getKey()))
+                .findAny()
+                .orElse(null);
+        Assertions.assertEquals("KBC", bank4.getValue());
     }
 
     @Test

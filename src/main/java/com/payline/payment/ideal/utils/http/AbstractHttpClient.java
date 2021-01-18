@@ -2,7 +2,9 @@ package com.payline.payment.ideal.utils.http;
 
 
 import com.payline.payment.ideal.exception.HttpCallException;
-import com.payline.pmapi.logger.LogManager;
+import com.payline.payment.ideal.exception.PluginException;
+import com.payline.payment.ideal.utils.properties.ConfigProperties;
+import lombok.extern.log4j.Log4j2;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.config.RequestConfig;
@@ -14,7 +16,6 @@ import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.logging.log4j.Logger;
 
 import javax.net.ssl.HttpsURLConnection;
 import java.io.IOException;
@@ -26,21 +27,36 @@ import java.net.URISyntaxException;
  * This utility class provides a basic HTTP client to send requests, using OkHttp library.
  * It must be extended to match each payment method needs.
  */
+@Log4j2
 public abstract class AbstractHttpClient {
 
     private CloseableHttpClient client;
-    private static final Logger LOGGER = LogManager.getLogger(AbstractHttpClient.class);
-
-
+    private int retries;
     /**
      * Instantiate a HTTP client.
      */
 
     protected AbstractHttpClient() {
+
+        int connectionRequestTimeout;
+        int connectTimeout;
+        int socketTimeout;
+        try {
+            // request config timeouts (in seconds)
+            ConfigProperties config = ConfigProperties.getInstance();
+            connectionRequestTimeout = Integer.parseInt(config.get("http.connectionRequestTimeout"));
+            connectTimeout = Integer.parseInt(config.get("http.connectTimeout"));
+            socketTimeout = Integer.parseInt(config.get("http.socketTimeout"));
+            // retries
+            this.retries = Integer.parseInt(config.get("http.retries"));
+        } catch (NumberFormatException e) {
+            throw new PluginException("plugin error: http.* properties must be integers", e);
+        }
+
         final RequestConfig requestConfig = RequestConfig.custom()
-                .setConnectTimeout(2 * 1000)
-                .setConnectionRequestTimeout(3 * 1000)
-                .setSocketTimeout(4 * 1000)
+                .setConnectTimeout(connectTimeout * 1000)
+                .setConnectionRequestTimeout(connectionRequestTimeout * 1000)
+                .setSocketTimeout(socketTimeout * 1000)
                 .build();
 
         this.client = HttpClientBuilder.create()
@@ -48,7 +64,6 @@ public abstract class AbstractHttpClient {
                 .setDefaultRequestConfig(requestConfig)
                 .setDefaultCredentialsProvider(new BasicCredentialsProvider())
                 .setSSLSocketFactory(new SSLConnectionSocketFactory(HttpsURLConnection.getDefaultSSLSocketFactory(), SSLConnectionSocketFactory.getDefaultHostnameVerifier())).build();
-
     }
 
 
@@ -93,7 +108,7 @@ public abstract class AbstractHttpClient {
             return getStringResponse(url, httpPostRequest);
 
         } catch (URISyntaxException e) {
-            LOGGER.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
             throw new HttpCallException("AbstractHttpClient.doPost.URISyntaxException", e);
         }
     }
@@ -103,18 +118,18 @@ public abstract class AbstractHttpClient {
         int count = 0;
         StringResponse strResponse = null;
         String errMsg = null;
-        while (count < 3 && strResponse == null) {
+        while (count < this.retries && strResponse == null) {
             try (CloseableHttpResponse httpResponse = this.client.execute(httpPostRequest)) {
 
-                LOGGER.info("Start partner call... [URL: {}]", url);
+                log.info("Start partner call... [URL: {}]", url);
                 strResponse = StringResponse.fromHttpResponse( httpResponse );
 
                 final long end = System.currentTimeMillis();
 
-                LOGGER.info("End partner call [T: {}ms] [CODE: {}]", end - start, strResponse.getStatusCode());
+                log.info("End partner call [T: {}ms] [CODE: {}]", end - start, strResponse.getStatusCode());
 
             } catch (final IOException e) {
-                LOGGER.error("Error while partner call [T: {}ms]", System.currentTimeMillis() - start, e);
+                log.error("Error while partner call [T: {}ms]", System.currentTimeMillis() - start, e);
                 errMsg = e.getMessage();
             } finally {
                 count++;
@@ -127,7 +142,7 @@ public abstract class AbstractHttpClient {
             }
             throw new HttpCallException(errMsg);
         }
-        LOGGER.info("Response obtained from partner API [{} {}]", strResponse.getStatusCode(), strResponse.getStatusMessage() );
+        log.info("Response obtained from partner API [{} {}]", strResponse.getStatusCode(), strResponse.getStatusMessage() );
         return strResponse;
     }
 

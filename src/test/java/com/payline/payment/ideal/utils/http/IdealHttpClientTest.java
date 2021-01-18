@@ -6,6 +6,7 @@ import com.payline.payment.ideal.bean.response.IdealDirectoryResponse;
 import com.payline.payment.ideal.bean.response.IdealPaymentResponse;
 import com.payline.payment.ideal.bean.response.IdealStatusResponse;
 import com.payline.payment.ideal.exception.PluginException;
+import com.payline.payment.ideal.utils.XMLUtils;
 import com.payline.payment.ideal.utils.security.SignatureUtils;
 import com.payline.pmapi.bean.common.FailureCause;
 import com.payline.pmapi.bean.configuration.request.ContractParametersCheckRequest;
@@ -40,12 +41,15 @@ class IdealHttpClientTest {
 
     @Mock
     private CloseableHttpClient closeableHttpClient;
-
+    // TODO : Vérifier si il y a plusieurs appel, sinon délcarer en local
+    private XMLUtils xmlUtils;
 
 
     @BeforeEach
     void setup() {
         MockitoAnnotations.initMocks(this);
+
+        xmlUtils = XMLUtils.getInstance();
 
         doReturn(null).when(signatureUtils).getPrivateKeyFromString(anyString());
         doReturn(null).when(signatureUtils).getPublicKeyFromString(anyString());
@@ -91,7 +95,8 @@ class IdealHttpClientTest {
 
         // assertions
         Assertions.assertNotNull(response);
-        Assertions.assertNotNull(response.getError());
+        Assertions.assertEquals("AP1100", response.getError().getErrorCode());
+        Assertions.assertEquals("MerchantID unknown", response.getError().getErrorMessage());
 
         // then: no HTTP call is made
         verify(closeableHttpClient, never()).execute(any(HttpRequestBase.class));
@@ -102,6 +107,7 @@ class IdealHttpClientTest {
     void transactionRequest() throws Exception {
         // init mock
         StringResponse stringResponse = mockStringResponse(200, null, Utils.TransactionResponse, null);
+        IdealPaymentResponse expectedResponse = xmlUtils.fromXML(stringResponse.getContent(), IdealPaymentResponse.class);
 
         doReturn("hello").when(client).createBody(any(), any());
         doReturn(stringResponse).when(client).getStringResponse(anyString(), any());
@@ -113,10 +119,9 @@ class IdealHttpClientTest {
 
         // assertions
         Assertions.assertNotNull(response);
-        Assertions.assertNotNull(response.getTransaction());
-        Assertions.assertNotNull(response.getTransaction().getTransactionId());
-        Assertions.assertNotNull(response.getIssuer());
-        Assertions.assertNotNull(response.getIssuer().getIssuerAuthenticationURL());
+        Assertions.assertEquals(expectedResponse.getTransaction().getTransactionId(), response.getTransaction().getTransactionId());
+        Assertions.assertEquals(expectedResponse.getTransaction().getConsumerIBAN(), response.getTransaction().getConsumerIBAN());
+        Assertions.assertEquals(expectedResponse.getIssuer().getIssuerAuthenticationURL(), response.getIssuer().getIssuerAuthenticationURL());
 
         // then: no HTTP call is made
         verify(closeableHttpClient, never()).execute(any(HttpRequestBase.class));
@@ -126,6 +131,7 @@ class IdealHttpClientTest {
     void statusRequest() throws Exception {
         // init mock
         StringResponse stringResponse = mockStringResponse(200, null, Utils.statusResponseOK, null);
+        IdealStatusResponse expectedResponse = xmlUtils.fromXML(stringResponse.getContent(), IdealStatusResponse.class);
 
         doReturn("hello").when(client).createBody(any(), any());
         doReturn(stringResponse).when(client).getStringResponse(anyString(), any());
@@ -137,11 +143,9 @@ class IdealHttpClientTest {
         IdealStatusResponse response = client.statusRequest(request);
 
         // assertions
-        Assertions.assertNotNull(response);
-        Assertions.assertNotNull(response.getTransaction());
-        Assertions.assertNotNull(response.getTransaction().getTransactionId());
-        Assertions.assertNotNull(response.getTransaction().getConsumerIBAN());
-        Assertions.assertNotNull(response.getTransaction().getStatus());
+        Assertions.assertEquals(expectedResponse.getTransaction().getTransactionId(), response.getTransaction().getTransactionId());
+        Assertions.assertEquals(expectedResponse.getTransaction().getConsumerIBAN(), response.getTransaction().getConsumerIBAN());
+        Assertions.assertEquals(expectedResponse.getTransaction().getStatus(), response.getTransaction().getStatus());
 
         // then: no HTTP call is made
         verify(closeableHttpClient, never()).execute(any(HttpRequestBase.class));
@@ -177,20 +181,11 @@ class IdealHttpClientTest {
 
     @Test
     void checkResponse505() {
-
-
         // create data
         StringResponse response = mockStringResponse(505, null, "this is an answer", null);
 
-        // call method
-        try {
-            client.checkResponse(response);
-            Assertions.fail("CheckResponse with code 505 did not throws Exception");
-        } catch (PluginException e) {
-            // assertions
-            Assertions.assertEquals("this is an answer", e.getErrorCode());
-            Assertions.assertEquals(FailureCause.PARTNER_UNKNOWN_ERROR, e.getFailureCause());
-        }
+        // assertions
+        Assertions.assertThrows(PluginException.class, () -> client.checkResponse(response));
     }
 
     @Test

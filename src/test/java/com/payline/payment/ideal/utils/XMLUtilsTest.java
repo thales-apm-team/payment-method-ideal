@@ -1,12 +1,15 @@
 package com.payline.payment.ideal.utils;
 
 import com.payline.payment.ideal.Utils;
+import com.payline.payment.ideal.bean.Country;
 import com.payline.payment.ideal.bean.request.IdealDirectoryRequest;
 import com.payline.payment.ideal.bean.request.IdealPaymentRequest;
 import com.payline.payment.ideal.bean.request.IdealStatusRequest;
 import com.payline.payment.ideal.bean.response.IdealDirectoryResponse;
 import com.payline.payment.ideal.bean.response.IdealPaymentResponse;
 import com.payline.payment.ideal.bean.response.IdealStatusResponse;
+import com.payline.payment.ideal.service.IdealPaymentRequestService;
+import com.payline.payment.ideal.service.IdealStatusRequestService;
 import com.payline.pmapi.bean.payment.ContractConfiguration;
 import com.payline.pmapi.bean.payment.request.PaymentRequest;
 import com.payline.pmapi.bean.payment.request.RedirectionPaymentRequest;
@@ -20,6 +23,9 @@ class XMLUtilsTest {
 
     @InjectMocks
     XMLUtils xmlUtils;
+
+    private IdealPaymentRequestService idealPaymentRequestService = IdealPaymentRequestService.getInstance();
+    private IdealStatusRequestService idealStatusRequestService = IdealStatusRequestService.getInstance();
 
     @BeforeEach
     void setup() {
@@ -44,7 +50,7 @@ class XMLUtilsTest {
     @Test
     void toXmlPaymentRequest() {
         PaymentRequest paymentRequest = Utils.createCompletePaymentBuilder().build();
-        IdealPaymentRequest request = new IdealPaymentRequest(paymentRequest);
+        IdealPaymentRequest request = idealPaymentRequestService.buildIdealPaymentRequest(paymentRequest);
 
         String s = xmlUtils.toXml(request);
 
@@ -65,7 +71,7 @@ class XMLUtilsTest {
     void toXmlStatusRequest() {
 
         RedirectionPaymentRequest redirectionPaymentRequest = Utils.createCompleteRedirectionPayment("123123");
-        IdealStatusRequest request = new IdealStatusRequest(redirectionPaymentRequest);
+        IdealStatusRequest request = idealStatusRequestService.buildIdealStatusRequest(redirectionPaymentRequest);
         String s = xmlUtils.toXml(request);
 
         Assertions.assertNotNull(s);
@@ -80,9 +86,15 @@ class XMLUtilsTest {
         IdealDirectoryResponse response =  xmlUtils.fromXML(Utils.directoryResponseOK, IdealDirectoryResponse.class);
 
         Assertions.assertNotNull(response);
-        Assertions.assertNotNull(response.getAcquirer());
-        Assertions.assertNotNull(response.getDirectory());
-        Assertions.assertNotNull(response.getDirectory().getCountries());
+        Assertions.assertEquals("0001", response.getAcquirer().getAcquirerId());
+
+        Country res = response.getDirectory().getCountries().stream()
+                .filter(country -> "Nederland".equals(country.getCountryNames()))
+                .findAny()
+                .orElse(null);
+
+        Assertions.assertTrue(response.getDirectory().getCountries().contains(res));
+
     }
 
 
@@ -91,11 +103,9 @@ class XMLUtilsTest {
         IdealPaymentResponse response = xmlUtils.fromXML(Utils.TransactionResponse, IdealPaymentResponse.class);
 
         Assertions.assertNotNull(response);
-        Assertions.assertNotNull(response.getIssuer());
-        Assertions.assertNotNull(response.getIssuer().getIssuerAuthenticationURL());
-        Assertions.assertNotNull(response.getTransaction());
-        Assertions.assertNotNull(response.getTransaction().getTransactionId());
-        Assertions.assertNotNull(response.getAcquirer());
+        Assertions.assertEquals("0001000000000001", response.getTransaction().getTransactionId());
+        Assertions.assertEquals("0001", response.getAcquirer().getAcquirerId());
+        Assertions.assertEquals("https://www.issuingbank.eu/ideal", response.getIssuer().getIssuerAuthenticationURL());
     }
 
 
@@ -104,10 +114,9 @@ class XMLUtilsTest {
         IdealStatusResponse response = xmlUtils.fromXML(Utils.statusResponseOK, IdealStatusResponse.class);
 
         Assertions.assertNotNull(response);
-        Assertions.assertNotNull(response.getAcquirer());
-        Assertions.assertNotNull(response.getTransaction());
-        Assertions.assertNotNull(response.getTransaction().getStatus());
-        Assertions.assertNotNull(response.getTransaction().getConsumerIBAN());
-
+        Assertions.assertEquals("0001000000000001", response.getTransaction().getTransactionId());
+        Assertions.assertEquals("0001", response.getAcquirer().getAcquirerId());
+        Assertions.assertEquals("Success", response.getTransaction().getStatus().getStatusCode());
+        Assertions.assertEquals("NL44RABO0123456789", response.getTransaction().getConsumerIBAN());
     }
 }

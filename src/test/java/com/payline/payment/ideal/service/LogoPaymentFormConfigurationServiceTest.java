@@ -67,8 +67,8 @@ class LogoPaymentFormConfigurationServiceTest {
         assertTrue(logoResponse instanceof PaymentFormLogoResponseFile);
         assertEquals(64, ((PaymentFormLogoResponseFile) logoResponse).getHeight());
         assertEquals(64, ((PaymentFormLogoResponseFile) logoResponse).getWidth());
-        assertTrue(((PaymentFormLogoResponseFile) logoResponse).getTitle().contains("IDEAL"));
-        assertTrue(((PaymentFormLogoResponseFile) logoResponse).getAlt().contains("IDEAL"));
+        assertEquals("IDEAL",((PaymentFormLogoResponseFile) logoResponse).getTitle());
+        assertEquals("IDEAL logo",((PaymentFormLogoResponseFile) logoResponse).getAlt());
     }
 
     @Test
@@ -92,12 +92,8 @@ class LogoPaymentFormConfigurationServiceTest {
         doReturn("IDEAL").when(i18n).getMessage(eq("paymentMethod.name"), any());
 
         // when: calling method getPaymentFormLogo()
-        try {
-            testService.getPaymentFormLogo(paymentFormLogoRequest);
-            Assertions.fail("should be an PluginException");
-        } catch (PluginException e) {
-            Assertions.assertEquals("Plugin config error: logo height and width must be integers", e.getMessage());
-        }
+        PluginException e = assertThrows(PluginException.class, () -> testService.getPaymentFormLogo(paymentFormLogoRequest));
+        Assertions.assertEquals("Plugin config error: logo height and width must be integers", e.getMessage());
     }
 
     @Test
@@ -111,7 +107,7 @@ class LogoPaymentFormConfigurationServiceTest {
         PaymentFormLogo paymentFormLogo = testService.getLogo("whatever", locale);
 
         // then:
-        assertNotNull(paymentFormLogo.getContentType());
+        assertEquals("image/png", paymentFormLogo.getContentType());
         assertNotNull(paymentFormLogo.getFile());
     }
 
@@ -122,13 +118,8 @@ class LogoPaymentFormConfigurationServiceTest {
         doReturn("png").when(config).get("logo.format");
         doReturn("image/png").when(config).get("logo.contentType");
 
-        // when: calling method getLogo(), then: an exception is thrown
-        try {
-            testService.getLogo("whatever", locale);
-            Assertions.fail("should be an PluginException");
-        } catch (PluginException e) {
-            Assertions.assertEquals("Plugin error: unable to load the logo file", e.getMessage());
-        }
+        PluginException e = assertThrows(PluginException.class, () ->  testService.getLogo("whatever", locale));
+        Assertions.assertEquals("Plugin error: unable to load the logo file", e.getMessage());
     }
 
     @Test

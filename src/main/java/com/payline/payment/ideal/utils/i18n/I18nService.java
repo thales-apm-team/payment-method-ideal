@@ -1,19 +1,15 @@
 package com.payline.payment.ideal.utils.i18n;
 
-import com.payline.pmapi.logger.LogManager;
-import org.apache.logging.log4j.Logger;
+import lombok.extern.log4j.Log4j2;
 
 import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
-
+@Log4j2
 public class I18nService {
     private static final String I18N_SERVICE_DEFAULT_LOCALE = "en";
     private static final String RESOURCE_BUNDLE_BASE_NAME = "messages";
-
-
-    private static final Logger LOGGER = LogManager.getLogger(I18nService.class);
 
     /**
      * Private constructor
@@ -44,7 +40,7 @@ public class I18nService {
         try {
             return messages.getString(key);
         } catch (MissingResourceException e) {
-            LOGGER.error("Trying to get a message with a key that does not exist: {} (language:  {})", key, locale.getLanguage());
+            log.error("Trying to get a message with a key that does not exist: {} (language:  {})", key, locale.getLanguage());
             return "???" + locale + "." + key + "???";
         }
     }

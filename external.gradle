@@ -1,11 +1,12 @@
 import groovy.swing.SwingBuilder
 
-import javax.crypto.Cipher
+
 import javax.crypto.spec.SecretKeySpec
 import javax.swing.*
-import javax.xml.bind.DatatypeConverter
+import javax.xml.*
 import java.awt.*
 import java.nio.charset.StandardCharsets
+import javax.crypto.Cipher
 
 repositories {
     mavenCentral()
@@ -36,6 +37,7 @@ sonarqube {
         property 'sonar.dependencyCheck.htmlReportPath', "${project.buildDir}/reports/dependency-check-report.html"
     }
 }
+
 
 buildscript {
     repositories {
@@ -185,7 +187,6 @@ task encryt {
             // Make the encryption
             byte[] decryptedBytes = toEncrypt.getBytes(StandardCharsets.UTF_8);
             byte[] encryptedBytes = cipher.doFinal(decryptedBytes);
-            System.out.println(DatatypeConverter.printBase64Binary(encryptedBytes));
         }
     }
 }
@@ -260,7 +261,6 @@ task decryt {
             Cipher cipher = Cipher.getInstance("AES");
             cipher.init(Cipher.DECRYPT_MODE, oneySecret); // Make the decryption
             byte[] decryptedBytes = cipher.doFinal(encryptedMessage);
-            System.out.println(new String(decryptedBytes, StandardCharsets.UTF_8));
         }
     }
 }

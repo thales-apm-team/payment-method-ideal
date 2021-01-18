@@ -11,22 +11,20 @@ import com.payline.pmapi.bean.configuration.parameter.AbstractParameter;
 import com.payline.pmapi.bean.configuration.parameter.impl.InputParameter;
 import com.payline.pmapi.bean.configuration.request.ContractParametersCheckRequest;
 import com.payline.pmapi.bean.configuration.request.RetrievePluginConfigurationRequest;
-import com.payline.pmapi.logger.LogManager;
 import com.payline.pmapi.service.ConfigurationService;
-import org.apache.logging.log4j.Logger;
+import lombok.extern.log4j.Log4j2;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
-
+@Log4j2
 public class ConfigurationServiceImpl implements ConfigurationService {
-
-    private static final Logger LOGGER = LogManager.getLogger(ConfigurationServiceImpl.class);
 
     private ReleaseProperties releaseProperties = ReleaseProperties.getInstance();
     private I18nService i18n = I18nService.getInstance();
     private IdealHttpClient client = IdealHttpClient.getInstance();
+    private XMLUtils xmlUtils =  XMLUtils.getInstance();
 
     @Override
     public List<AbstractParameter> getParameters(Locale locale) {
@@ -73,14 +71,14 @@ public class ConfigurationServiceImpl implements ConfigurationService {
         try {
             IdealDirectoryResponse response = client.directoryRequest(retrievePluginConfigurationRequest);
             if (response.getError() != null) {
-                LOGGER.error("Could not retrieve plugin configuration due to a partner error: {}", response.getError().getErrorCode());
+                log.error("Could not retrieve plugin configuration due to a partner error: {}", response.getError().getErrorCode());
                 return retrievePluginConfigurationRequest.getPluginConfiguration();
             } else {
-                return XMLUtils.getInstance().toXml(response.getDirectory());
+                return xmlUtils.toXml(response.getDirectory());
             }
 
         } catch (RuntimeException e) {
-            LOGGER.error("Could not retrieve plugin configuration due to a plugin error", e);
+            log.error("Could not retrieve plugin configuration due to a plugin error", e);
             return retrievePluginConfigurationRequest.getPluginConfiguration();
         }
     }

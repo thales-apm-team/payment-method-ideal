@@ -1,6 +1,7 @@
 package com.payline.payment.ideal.utils;
 
 
+import com.payline.payment.ideal.bean.Categories;
 import com.payline.pmapi.bean.common.FailureCause;
 
 import java.math.BigInteger;
@@ -55,31 +56,40 @@ public class PluginUtils {
         return df.format(date);
     }
 
-
+    public static Categories categoriesFromErrorCode(String errorCode) {
+        if(!PluginUtils.isEmpty(errorCode)) {
+            for (Categories b : Categories.values()) {
+                if (b.getErrorCode().equalsIgnoreCase(errorCode)) {
+                    return b;
+                }
+            }
+        }
+        return Categories.UNKNOWN_ERROR;
+    }
     // Ideal Specific methods
     public static FailureCause getFailureCauseFromIdealErrorCode(String error) {
         if (error == null || error.length() < 6) {
             return FailureCause.PARTNER_UNKNOWN_ERROR;
         }
 
-        String errorCat = error.substring(0, 2);
+        Categories errorCat = categoriesFromErrorCode(error.substring(0, 2).toUpperCase());
         String errorCode = error.substring(2, 6);
 
-        switch (errorCat.toUpperCase()) {
-            case "IX":
-            case "AP":
+        switch (errorCat) {
+            case INVALID_XML:
+            case APPLICATION_ERRORS:
                 return FailureCause.INVALID_DATA;
-            case "SO":
+            case SYSTEM_MAINTENANCE:
                 if ("1000".equals(errorCode)) {
                     return FailureCause.PAYMENT_PARTNER_ERROR;
                 } else {
                     return FailureCause.COMMUNICATION_ERROR;
                 }
 
-            case "SE":
+            case SECURITY:
                 return FailureCause.REFUSED;
 
-            case "BR":
+            case FIELD_ERRORS:
                 if ("1210".equals(errorCode)) {
                     return FailureCause.INVALID_FIELD_FORMAT;
                 } else {

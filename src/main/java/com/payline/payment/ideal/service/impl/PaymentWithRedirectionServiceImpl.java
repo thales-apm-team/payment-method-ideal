@@ -14,12 +14,10 @@ import com.payline.pmapi.bean.payment.response.buyerpaymentidentifier.impl.Empty
 import com.payline.pmapi.bean.payment.response.impl.PaymentResponseFailure;
 import com.payline.pmapi.bean.payment.response.impl.PaymentResponseOnHold;
 import com.payline.pmapi.bean.payment.response.impl.PaymentResponseSuccess;
-import com.payline.pmapi.logger.LogManager;
 import com.payline.pmapi.service.PaymentWithRedirectionService;
-import org.apache.logging.log4j.Logger;
-
+import lombok.extern.log4j.Log4j2;
+@Log4j2
 public class PaymentWithRedirectionServiceImpl implements PaymentWithRedirectionService {
-    private static final Logger LOGGER = LogManager.getLogger(PaymentWithRedirectionServiceImpl.class);
 
     private IdealHttpClient client = IdealHttpClient.getInstance();
 
@@ -36,7 +34,7 @@ public class PaymentWithRedirectionServiceImpl implements PaymentWithRedirection
                     .build();
 
         } catch (RuntimeException e) {
-            LOGGER.error("Unexpected plugin error", e);
+            log.error("Unexpected plugin error", e);
             return PaymentResponseFailure.PaymentResponseFailureBuilder
                     .aPaymentResponseFailure()
                     .withPartnerTransactionId(partnerTransactionId)
@@ -60,7 +58,7 @@ public class PaymentWithRedirectionServiceImpl implements PaymentWithRedirection
                     .build();
 
         } catch (RuntimeException e) {
-            LOGGER.error("Unexpected plugin error", e);
+            log.error("Unexpected plugin error", e);
             return PaymentResponseFailure.PaymentResponseFailureBuilder
                     .aPaymentResponseFailure()
                     .withPartnerTransactionId(partnerTransactionId)
@@ -73,7 +71,7 @@ public class PaymentWithRedirectionServiceImpl implements PaymentWithRedirection
     PaymentResponse handleResponse(String partnerTransactionId, IdealStatusResponse response) {
         if (response.getError() != null) {
             String errorCode = response.getError().getErrorCode();
-            LOGGER.info("an error occurred: {}",response.getError());
+            log.info("an error occurred: {}",response.getError());
 
             return PaymentResponseFailure.PaymentResponseFailureBuilder
                     .aPaymentResponseFailure()

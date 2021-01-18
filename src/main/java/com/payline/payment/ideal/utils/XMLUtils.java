@@ -5,14 +5,12 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.payline.payment.ideal.exception.PluginException;
 import com.payline.pmapi.bean.common.FailureCause;
-import com.payline.pmapi.logger.LogManager;
-import org.apache.logging.log4j.Logger;
+import lombok.extern.log4j.Log4j2;
 
 import java.io.IOException;
 
-
+@Log4j2
 public class XMLUtils {
-    private static final Logger LOGGER = LogManager.getLogger(XMLUtils.class);
 
     private XmlMapper mapper;
 
@@ -40,7 +38,7 @@ public class XMLUtils {
         try {
             return mapper.writeValueAsString(bean);
         } catch (JsonProcessingException e) {
-            LOGGER.error("Unable to write XML", e);
+            log.error("Unable to write XML", e);
             throw new PluginException(e.getMessage(), FailureCause.INVALID_DATA);
         }
     }
@@ -49,7 +47,7 @@ public class XMLUtils {
         try {
             return mapper.readValue(xml, clazz);
         } catch (IOException e) {
-            LOGGER.error("Unable to read XML", e);
+            log.error("Unable to read XML", e);
             throw new PluginException(e.getMessage(), FailureCause.INVALID_DATA);
         }
 

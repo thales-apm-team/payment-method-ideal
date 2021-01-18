@@ -52,13 +52,20 @@ class ConfigurationServiceImplTest {
         List<AbstractParameter> parameters = service.getParameters(Locale.FRANCE);
         Assertions.assertEquals(2, parameters.size());
 
-        for (AbstractParameter parameter : parameters) {
-            System.out.println(parameter.getLabel());
-            Assertions.assertFalse(parameter.getKey().isEmpty());
-            Assertions.assertFalse(parameter.getLabel().isEmpty());
-            Assertions.assertFalse(parameter.getLabel().contains("???"));
-            Assertions.assertFalse(parameter.getDescription().contains("???"));
-        }
+        AbstractParameter param1 = parameters.stream()
+                .filter(parameter -> "merchantId".equals(parameter.getKey()))
+                .findAny()
+                .orElse(null);
+
+        AbstractParameter param2 = parameters.stream()
+                .filter(parameter -> "merchantSubId".equals(parameter.getKey()))
+                .findAny()
+                .orElse(null);
+
+            Assertions.assertNotNull(param1);
+            Assertions.assertEquals("Id du commerçant", param1.getLabel());
+            Assertions.assertNotNull(param2);
+            Assertions.assertEquals("Sous id du commerçant", param2.getLabel());
     }
 
     @Test

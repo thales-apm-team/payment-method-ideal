@@ -10,17 +10,14 @@ import com.payline.pmapi.bean.payment.request.PaymentRequest;
 import com.payline.pmapi.bean.payment.response.PaymentResponse;
 import com.payline.pmapi.bean.payment.response.impl.PaymentResponseFailure;
 import com.payline.pmapi.bean.payment.response.impl.PaymentResponseRedirect;
-import com.payline.pmapi.logger.LogManager;
 import com.payline.pmapi.service.PaymentService;
-import org.apache.logging.log4j.Logger;
+import lombok.extern.log4j.Log4j2;
 
 import java.net.MalformedURLException;
 import java.net.URL;
 
-
+@Log4j2
 public class PaymentServiceImpl implements PaymentService {
-
-    private static final Logger LOGGER = LogManager.getLogger(PaymentServiceImpl.class);
 
     private IdealHttpClient client = IdealHttpClient.getInstance();
 
@@ -33,7 +30,7 @@ public class PaymentServiceImpl implements PaymentService {
 
             if (response.getError() != null) {
                 String errorCode = response.getError().getErrorCode();
-                LOGGER.info("an error occurred: {}",response.getError());
+                log.info("an error occurred: {}",response.getError());
 
                 return PaymentResponseFailure.PaymentResponseFailureBuilder
                         .aPaymentResponseFailure()
@@ -60,7 +57,7 @@ public class PaymentServiceImpl implements PaymentService {
 
             }
         } catch (MalformedURLException e) {
-            LOGGER.error("received URL isn't well formed", e);
+            log.error("received URL isn't well formed", e);
             return PaymentResponseFailure.PaymentResponseFailureBuilder
                     .aPaymentResponseFailure()
                     .withPartnerTransactionId(partnerTransactionId)
@@ -68,12 +65,13 @@ public class PaymentServiceImpl implements PaymentService {
                     .withFailureCause(FailureCause.INVALID_DATA)
                     .build();
         } catch (PluginException e) {
+            log.error("Unable to perform the payment request", e);
             return e.toPaymentResponseFailureBuilder()
                     .withPartnerTransactionId(partnerTransactionId)
                     .build();
 
         } catch (RuntimeException e) {
-            LOGGER.error("Unexpected plugin error", e);
+            log.error("Unexpected runtime error", e);
             return PaymentResponseFailure.PaymentResponseFailureBuilder
                     .aPaymentResponseFailure()
                     .withPartnerTransactionId(partnerTransactionId)

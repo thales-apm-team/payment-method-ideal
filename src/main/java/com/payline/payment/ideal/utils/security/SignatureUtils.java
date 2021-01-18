@@ -151,7 +151,7 @@ public class SignatureUtils {
             Reference ref = fac.newReference("", digestMethod, transformList, null, null);
 
             // create Signed Info
-            ArrayList<Reference> refList = new ArrayList<>();
+            List<Reference> refList = new ArrayList<>();
             refList.add(ref);
             SignedInfo signedInfo = fac.newSignedInfo(cm, sm, refList);
 

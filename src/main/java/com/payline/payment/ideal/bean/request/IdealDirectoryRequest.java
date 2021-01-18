@@ -4,6 +4,7 @@ import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 import com.payline.payment.ideal.bean.IdealBean;
 import com.payline.payment.ideal.bean.Merchant;
+import com.payline.payment.ideal.utils.PluginUtils;
 import com.payline.payment.ideal.utils.constant.ContractConfigurationKeys;
 import com.payline.pmapi.bean.configuration.request.ContractParametersCheckRequest;
 import com.payline.pmapi.bean.payment.ContractConfiguration;
@@ -19,16 +20,23 @@ public class IdealDirectoryRequest extends IdealBean {
 
     public IdealDirectoryRequest(ContractParametersCheckRequest request) {
         super();
-        this.merchant = new Merchant(request.getAccountInfo().get(ContractConfigurationKeys.MERCHANT_ID_KEY)
-                , request.getAccountInfo().get(ContractConfigurationKeys.MERCHANT_SUBID_KEY));
-    }
 
+        String subId = request.getAccountInfo().get(ContractConfigurationKeys.MERCHANT_SUBID_KEY);
+        if (PluginUtils.isEmpty(subId)) subId = "0";
+
+        this.merchant = new Merchant(request.getAccountInfo().get(ContractConfigurationKeys.MERCHANT_ID_KEY)
+                , subId);
+
+    }
 
     public IdealDirectoryRequest(ContractConfiguration configuration) {
         super();
-        this.merchant = new Merchant(configuration.getProperty(ContractConfigurationKeys.MERCHANT_ID_KEY).getValue()
-                , configuration.getProperty(ContractConfigurationKeys.MERCHANT_SUBID_KEY).getValue());
 
+        String subId = configuration.getProperty(ContractConfigurationKeys.MERCHANT_SUBID_KEY).getValue();
+        if (PluginUtils.isEmpty(subId)) subId = "0";
+
+        this.merchant = new Merchant(configuration.getProperty(ContractConfigurationKeys.MERCHANT_ID_KEY).getValue()
+                , subId);
     }
 
     public Merchant getMerchant() {

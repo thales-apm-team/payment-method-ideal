@@ -8,6 +8,8 @@ import com.payline.payment.ideal.bean.response.IdealDirectoryResponse;
 import com.payline.payment.ideal.bean.response.IdealPaymentResponse;
 import com.payline.payment.ideal.bean.response.IdealStatusResponse;
 import com.payline.payment.ideal.exception.PluginException;
+import com.payline.payment.ideal.service.IdealPaymentRequestService;
+import com.payline.payment.ideal.service.IdealStatusRequestService;
 import com.payline.payment.ideal.utils.XMLUtils;
 import com.payline.payment.ideal.utils.constant.PartnerConfigurationKeys;
 import com.payline.payment.ideal.utils.security.SignatureUtils;
@@ -18,19 +20,16 @@ import com.payline.pmapi.bean.configuration.request.RetrievePluginConfigurationR
 import com.payline.pmapi.bean.payment.request.PaymentRequest;
 import com.payline.pmapi.bean.payment.request.RedirectionPaymentRequest;
 import com.payline.pmapi.bean.payment.request.TransactionStatusRequest;
-import com.payline.pmapi.logger.LogManager;
+import lombok.extern.log4j.Log4j2;
 import org.apache.http.Header;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicHeader;
-import org.apache.logging.log4j.Logger;
 
 import java.nio.charset.Charset;
 import java.security.PrivateKey;
 import java.security.PublicKey;
-
+@Log4j2
 public class IdealHttpClient extends AbstractHttpClient {
-    private static final Logger LOGGER = LogManager.getLogger(IdealHttpClient.class);
-
 
     // headers data
     private static final String CONTENT_TYPE_KEY = "Content-Type";
@@ -38,11 +37,15 @@ public class IdealHttpClient extends AbstractHttpClient {
 
     private XMLUtils xmlUtils;
     private SignatureUtils signatureUtils;
-
+    private IdealPaymentRequestService idealPaymentRequestService;
+    private IdealStatusRequestService idealStatusRequestService;
 
     private IdealHttpClient() {
         xmlUtils = XMLUtils.getInstance();
         signatureUtils = SignatureUtils.getInstance();
+        idealPaymentRequestService =  IdealPaymentRequestService.getInstance();
+        idealStatusRequestService =  IdealStatusRequestService.getInstance();
+
     }
 
 
@@ -154,7 +157,8 @@ public class IdealHttpClient extends AbstractHttpClient {
         Header[] headers = createHeaders();
 
         // create body
-        IdealPaymentRequest paymentRequest = new IdealPaymentRequest(request);
+
+        IdealPaymentRequest paymentRequest = idealPaymentRequestService.buildIdealPaymentRequest(request);
         String signedXmlBody = this.createBody(paymentRequest, request.getPartnerConfiguration());
 
         // do the call
@@ -178,7 +182,8 @@ public class IdealHttpClient extends AbstractHttpClient {
      * @return
      */
     public IdealStatusResponse statusRequest(RedirectionPaymentRequest request) {
-        IdealStatusRequest statusRequest = new IdealStatusRequest(request);
+
+        IdealStatusRequest statusRequest = idealStatusRequestService.buildIdealStatusRequest(request);
         return this.statusRequest(statusRequest, request.getPartnerConfiguration());
     }
 
@@ -189,7 +194,7 @@ public class IdealHttpClient extends AbstractHttpClient {
      * @return
      */
     public IdealStatusResponse statusRequest(TransactionStatusRequest request) {
-        IdealStatusRequest statusRequest = new IdealStatusRequest(request);
+        IdealStatusRequest statusRequest = idealStatusRequestService.buildIdealStatusRequest(request);
         return this.statusRequest(statusRequest, request.getPartnerConfiguration());
     }
 
@@ -232,7 +237,7 @@ public class IdealHttpClient extends AbstractHttpClient {
      */
     void checkResponse(StringResponse response) {
         if (!response.isSuccess()) {
-            LOGGER.error("Bad response status: {}", response.getStatusCode());
+            log.error("Bad response status: {}", response.getStatusCode());
 
             // Extract error code and message from the error response
             String message = "partner error: " + response.getStatusCode() + " " + response.getStatusMessage();
